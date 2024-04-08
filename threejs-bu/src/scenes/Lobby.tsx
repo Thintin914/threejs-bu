@@ -43,12 +43,18 @@ export function Lobby(){
 
         const f = async() =>{
             let ground = createEntity('ground');
-            insertComponent(ground, {id: 'transform', rotate_x: 0});
+            insertComponent(ground, { id: 'transform' });
             insertComponent(ground, {
-                id: 'circle_plane',
-                radius: 1,
-                segments: 16,
-                color: 0xdae1ed
+                id: 'model',
+                bucket: 'scenes',
+                file: 'lobby/lobby.glb',
+                scale: { x: 0.30, y: 0.30, z: 0.30 }
+            });
+            insertComponent(ground, {
+                id: 'hitbox',
+                width: 10,
+                height: 0.1,
+                depth: 10
             });
             await insertEntityToSystem(ground, system, scene, world, ui.current!);
     
