@@ -21,7 +21,7 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                         y: lerp(model.position.y, component.y, component.time_rotate),
                         z: lerp(model.position.z, component.z, component.time_rotate)
                     };
-                    model.position.set(new_position.x, new_position.y, new_position.z);
+                    model.position.set(new_position.x + component.offset.x, new_position.y + component.offset.y, new_position.z + component.offset.z);
                     if (component.time_scale < 1){
                         let new_scale = {
                             x: lerp(model.scale.x, component.scale.x, component.time_scale),
@@ -35,9 +35,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     if (component.time_rotate < 1){
                         model.quaternion.setFromEuler(
                             new THREE.Euler(
-                                lerp(model.rotation.x, component.rotate_x, 1),
+                                component.rotate_x,
                                 lerp(model.rotation.y, component.rotate_y, component.time_rotate),
-                                lerp(model.rotation.z, component.rotate_z, 1)
+                                component.rotate_z
                             )
                         );
                         if (component.time_rotate + 0.01 < 1)

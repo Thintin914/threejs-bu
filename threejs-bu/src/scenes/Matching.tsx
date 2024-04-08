@@ -45,12 +45,22 @@ export function Matching(){
         counted.current = true; 
 
         let ground = createEntity('ground');
-        insertComponent(ground, {id: 'transform', rotate_x: 0});
         insertComponent(ground, {
-            id: 'circle_plane',
-            radius: 1,
-            segments: 16,
-            color: 0xdae1ed
+            id: 'transform',
+            y: -0.5,
+            offset: {x: 0, y: 0.1, z: -0.25}
+         });
+        insertComponent(ground, {
+            id: 'model',
+            bucket: 'scenes',
+            file: 'GameMap/siege_camp_scene.glb',
+            scale: { x: 2.60, y: 2.60, z: 2.60 }
+        });
+        insertComponent(ground, {
+            id: 'hitbox',
+            width: 7,
+            height: 0.1,
+            depth: 3.2
         });
         insertEntityToSystem(ground, system, scene, world, ui.current!);
 
