@@ -115,9 +115,8 @@ export function Game(){
                 color: '#ffffff'
             });
             if (key === account.user_id){
-                insertComponent(player, {id: 'rotation'});
                 insertComponent(player, {id: 'physic', static: true});
-                // insertComponent(player, {id: 'controller'});
+                insertComponent(player, {id: 'controller2'});
                 insertComponent(player, {id: 'camera'});
                 insertComponent(player, {id: 'sync'});
             }
@@ -197,20 +196,7 @@ export function Game(){
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">
             
             <div className='z-20 w-full h-full flex justify-start items-start pointer-events-none p-2'>
-                <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
-                initial={{ scale: 1, color: "#ffffff" }}
-                whileHover={{ scale: 1.2, color: "#000000" }}
-                transition={{
-                  type: "spring",
-                  bounce: 0.6,
-                }}
-                whileTap={{ scale: 0.8, rotateZ: 0 }}
-                onClick={() =>{
-                    exit();
-                    setFading(true, '/');
-                }}>
-                    Back
-                </motion.div>
+
             </div>
 
             <GameUILayer forwardedRef={ui} width={screenSize.width} height={screenSize.height} />

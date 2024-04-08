@@ -35,9 +35,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     if (component.time_rotate < 1){
                         model.quaternion.setFromEuler(
                             new THREE.Euler(
-                                lerp(model.rotation.x, component.rotate_x, component.time_rotate),
+                                lerp(model.rotation.x, component.rotate_x, 1),
                                 lerp(model.rotation.y, component.rotate_y, component.time_rotate),
-                                lerp(model.rotation.z, component.rotate_z, component.time_rotate)
+                                lerp(model.rotation.z, component.rotate_z, 1)
                             )
                         );
                         if (component.time_rotate + 0.01 < 1)
@@ -137,9 +137,36 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     }
                     break;
                 }
-                case 'rotation': {
+                case 'controller2': {
+                    const model = entity.gameObject.model;
                     const transform = entity.components['transform'];
-                    transform.rotate_y = (transform.rotate_y + 0.05) % 360;
+                    const physic = entity.components['physic'];
+
+                    let prev = component.previous;
+                    if (!prev)
+                        prev = keyPressed;
+
+                    if (keyPressed['ArrowUp']){
+
+                        if (!prev['ArrowUp']){
+
+                            const directionVector = new THREE.Vector3();
+                            const rotationMatrix = new THREE.Matrix4();
+                            rotationMatrix.makeRotationFromEuler(model.rotation);
+                            directionVector.set(0, 0, 1);
+                            directionVector.applyMatrix4(rotationMatrix);
+                            component.vector = directionVector;
+                        }
+
+                        physic.vel_x = component.vector.x * 0.5;
+                        physic.vel_y = component.vector.y * 0.5;
+                        physic.vel_z = component.vector.z * 0.5;
+
+                    } else {
+                        transform.rotate_y = (transform.rotate_y + 0.05) % 360;
+                    }
+
+                    component.previous = keyPressed;
                     break;
                 }
                 case 'physic': {

@@ -247,6 +247,7 @@ export function Matching(){
                 return;
 
             // initial
+            setSkin('knight1.glb');
             await room.current!.track({
                 is_host: is_host,
                 username: account.username,
