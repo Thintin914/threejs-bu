@@ -154,7 +154,7 @@ export function Matching(){
             insertComponent(player, {
                 id: 'model',
                 bucket: 'characters',
-                file: 'players/knight3.glb',
+                file: `players/${newPresences[0].skin}`,
                 scale: {x: 0.001, y: 0.001, z: 0.001}
             })
             insertComponent(player, {
@@ -240,7 +240,7 @@ export function Matching(){
             await room.current!.track({
                 is_host: is_host,
                 username: account.username,
-                skin: 'blue'
+                skin: 'knight1.glb'
             });
         });
 
@@ -343,12 +343,34 @@ export function Matching(){
                     let player = players[account.user_id];
                     if (!player)
                         return;
-                    if (player.skin === 'blue')
+                    if (player.skin === 'knight4.glb')
                         return;
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
-                        skin: 'blue'
+                        skin: 'knight4.glb'
+                    });
+                }}>
+                    Tint
+                </motion.div>
+                <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
+                initial={{ scale: 1, color: "#ffffff" }}
+                whileHover={{ scale: 1.2, color: "#000000" }}
+                transition={{
+                  type: "spring",
+                  bounce: 0.6,
+                }}
+                whileTap={{ scale: 0.8, rotateZ: 0 }}
+                onClick={async() =>{
+                    let player = players[account.user_id];
+                    if (!player)
+                        return;
+                    if (player.skin === 'knight3.glb')
+                        return;
+                    await room.current!.track({
+                        is_host: is_host,
+                        username: account.username,
+                        skin: 'knight3.glb'
                     });
                 }}>
                     Blue
@@ -365,15 +387,15 @@ export function Matching(){
                     let player = players[account.user_id];
                     if (!player)
                         return;
-                    if (player.skin === 'black')
+                    if (player.skin === 'knight2.glb')
                         return;
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
-                        skin: 'black'
+                        skin: 'knight2.glb'
                     });
                 }}>
-                    Black
+                    Yellow
                 </motion.div>
                 <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
                 initial={{ scale: 1, color: "#ffffff" }}
@@ -387,15 +409,15 @@ export function Matching(){
                     let player = players[account.user_id];
                     if (!player)
                         return;
-                    if (player.skin === 'white')
+                    if (player.skin === 'knight1.glb')
                         return;
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
-                        skin: 'white'
+                        skin: 'knight1.glb'
                     });
                 }}>
-                    White
+                    Black
                 </motion.div>
             </div>
 

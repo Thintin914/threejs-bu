@@ -5,12 +5,12 @@ import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 export async function downloadFile(bucket: string, file: string){
-
+    console.log('download file')
     const { data, error } = await supabase
     .storage
     .from(bucket)
     .download(file);
-
+    console.log('download end')
     return data;
 }
 export type GameObject = {

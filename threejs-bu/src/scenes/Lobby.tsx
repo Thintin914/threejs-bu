@@ -47,7 +47,7 @@ export function Lobby(){
             insertComponent(ground, {
                 id: 'model',
                 bucket: 'scenes',
-                file: 'lobby/lobby.glb',
+                file: 'lobby/hall.glb',
                 scale: { x: 0.30, y: 0.30, z: 0.30 }
             });
             insertComponent(ground, {

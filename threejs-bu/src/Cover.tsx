@@ -18,7 +18,7 @@ const people = [
   },
   {
     id: 2,
-    name: "Tim HO",
+    name: "Tim Ho",
     designation: "Game Programmer",
     image:
       "./images/tim-ho.jpg",
