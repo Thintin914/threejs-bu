@@ -20,7 +20,7 @@ export function Matching(){
     const {id} = useParams();
     const {setFading} = useTransitionStore();
     const {allowed_players, current_players, room_id, room_name, password, clearGMState, setGMState} = useGMStore();
-    const {account, is_host, setHost} = useAccountStore();
+    const {account, is_host, setSkin} = useAccountStore();
 
     const [_current_players, _set_current_players] = useState<number>(0);
 
@@ -345,6 +345,7 @@ export function Matching(){
                         return;
                     if (player.skin === 'knight4.glb')
                         return;
+                    setSkin('knight4.glb')
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
@@ -367,6 +368,7 @@ export function Matching(){
                         return;
                     if (player.skin === 'knight3.glb')
                         return;
+                    setSkin('knight3.glb')
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
@@ -389,6 +391,7 @@ export function Matching(){
                         return;
                     if (player.skin === 'knight2.glb')
                         return;
+                    setSkin('knight2.glb')
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
@@ -411,6 +414,7 @@ export function Matching(){
                         return;
                     if (player.skin === 'knight1.glb')
                         return;
+                    setSkin('knight1.glb')
                     await room.current!.track({
                         is_host: is_host,
                         username: account.username,
