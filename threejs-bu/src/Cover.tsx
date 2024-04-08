@@ -21,7 +21,7 @@ const people = [
     name: "Tim HO",
     designation: "Game Programmer",
     image:
-      "./images/Tim HO.png",
+      "./images/tim-ho.jpg",
   },
 ];
 
