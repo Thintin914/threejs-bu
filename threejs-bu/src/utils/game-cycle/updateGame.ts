@@ -14,11 +14,7 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     break;
                 }
                 case 'transform': {
-                    const hitbox = entity.gameObject.hitbox as CANNON.Body;
                     const model = entity.gameObject.model;
-                    component.x = hitbox.position.x;
-                    component.y = hitbox.position.y;
-                    component.z = hitbox.position.z;
 
                     let new_position = {
                         x: lerp(model.position.x, component.x, component.time_rotate),
@@ -37,12 +33,13 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             component.time_scale += 0.05;
                     }
                     if (component.time_rotate < 1){
-                        model.setRotationFromQuaternion(new THREE.Quaternion(
-                            lerp(model.quaternion.x, hitbox.quaternion.x, component.time_rotate),
-                            lerp(model.quaternion.y, hitbox.quaternion.y, component.time_rotate),
-                            lerp(model.quaternion.z, hitbox.quaternion.z, component.time_rotate),
-                            lerp(model.quaternion.w, hitbox.quaternion.w, component.time_rotate),
-                        ));
+                        model.quaternion.setFromEuler(
+                            new THREE.Euler(
+                                lerp(model.rotation.x, component.rotate_x, component.time_rotate),
+                                lerp(model.rotation.y, component.rotate_y, component.time_rotate),
+                                lerp(model.rotation.z, component.rotate_z, component.time_rotate)
+                            )
+                        );
                         if (component.time_rotate + 0.01 < 1)
                             component.time_rotate += 0.01;
                     }
@@ -52,7 +49,6 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     component.t++;
                     if (component.t > 9){
                         const transform = entity.components['transform'];
-                        const hitbox = entity.gameObject.hitbox as CANNON.Body;
                         component.t = 0;
                         room!.send({
                             type: 'broadcast',
@@ -60,11 +56,10 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             payload: {
                                 id: entity.id,
                                 transform: {
-                                    quaternion: {
-                                        x: hitbox.quaternion.x,
-                                        y: hitbox.quaternion.y,
-                                        z: hitbox.quaternion.z,
-                                        w: hitbox.quaternion.w
+                                    rotation: {
+                                        x: transform.rotate_x,
+                                        y: transform.rotate_y,
+                                        z: transform.rotate_z
                                     },
                                     position: {
                                         x: transform.x,
@@ -133,21 +128,25 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
 
                     if (physic.static){
                         const normalized_vel = new THREE.Vector3(physic.vel_x, physic.vel_y, physic.vel_z).normalize();
-                        var mx = new THREE.Matrix4().lookAt(normalized_vel,new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0));
-                        var qt = new THREE.Quaternion().setFromRotationMatrix(mx);
+                        const mx = new THREE.Matrix4().lookAt(normalized_vel,new THREE.Vector3(0,0,0),new THREE.Vector3(0,1,0));
+                        const euler = new THREE.Euler().setFromRotationMatrix(mx);
                         
-                        physic.rotate_x = qt.x;
-                        physic.rotate_y = qt.y;
-                        physic.rotate_z = qt.z;
-                        physic.rotate_w = qt.w;
+                        transform.rotate_x = euler.x;
+                        transform.rotate_y = euler.y;
+                        transform.rotate_z = euler.z;
                     }
+                    break;
+                }
+                case 'rotation': {
+                    const transform = entity.components['transform'];
+                    transform.rotate_y = (transform.rotate_y + 0.05) % 360;
                     break;
                 }
                 case 'physic': {
                     const hitbox = entity.gameObject.hitbox as CANNON.Body;
-
+                    const transform = entity.components['transform'];
                     if (component.static)
-                        hitbox.quaternion.set(component.rotate_x, component.rotate_y, component.rotate_z, component.rotate_w);
+                        hitbox.quaternion.setFromEuler(transform.rotate_x, transform.rotate_y, transform.rotate_z);
                     hitbox.velocity.set(component.vel_x, component.vel_y, component.vel_z);
                     component.vel_x *= 0.8;
                     component.vel_y *= 0.8;
@@ -155,6 +154,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     component.vel_cam_x *= 0.95;
                     component.vel_cam_y *= 0.95;
                     component.vel_cam_z *= 0.95;
+                    transform.x = hitbox.position.x;
+                    transform.y = hitbox.position.y;
+                    transform.z = hitbox.position.z;
                     break;
                 }
                 case 'camera': {

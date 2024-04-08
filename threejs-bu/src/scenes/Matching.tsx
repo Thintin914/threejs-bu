@@ -207,7 +207,9 @@ export function Matching(){
                 self_transform.x = transform.position.x;
                 self_transform.y = transform.position.y;
                 self_transform.z = transform.position.z;
-                hitbox.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
+                self_transform.rotate_x = transform.rotation.x;
+                self_transform.rotate_y = transform.rotation.y;
+                self_transform.rotate_z = transform.rotation.z;
                 self_transform.scale = transform.scale;
             }
         )
@@ -229,7 +231,15 @@ export function Matching(){
             { event: 'play' },
             (data) => {
                 let game_id = data.payload.uuid;
-                console.log(game_id);
+                if (rooms.current){
+                    rooms.current.untrack();
+                    rooms.current.unsubscribe();
+                }
+                if (room.current){
+                    room.current.untrack();
+                    room.current.unsubscribe();
+                    setFading(true, `/Game/${game_id}`);
+                }
             }
         )
         .subscribe( async(status) =>{

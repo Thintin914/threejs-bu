@@ -74,11 +74,6 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 component.vel_cam_y = 0;
                 component.vel_cam_z = 0;
 
-                component.rotate_x = 0;
-                component.rotate_y = 0;
-                component.rotate_z = 0;
-                component.rotate_w = 0;
-
                 let hitbox = entity.gameObject.hitbox as CANNON.Body;
                 hitbox.mass = component.mass ? component.mass : 1;
                 hitbox.type = CANNON.Body.DYNAMIC;
@@ -141,7 +136,6 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
     if (entity.gameObject.hitbox){
         world.addBody(entity.gameObject.hitbox);
 
-        const transform = entity.components['transform'];
         const hitbox = entity.gameObject.hitbox as CANNON.Body;
         hitbox.position.set(transform.x, transform.y, transform.z);
         hitbox.quaternion.setFromEuler(transform.rotate_x, transform.rotate_y, transform.rotate_z);

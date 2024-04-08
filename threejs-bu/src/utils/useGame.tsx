@@ -67,7 +67,7 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
 
         scene.current = new THREE.Scene();
 
-        ambientLight.current = new THREE.AmbientLight( 0x404040, 100 ); // soft white light
+        ambientLight.current = new THREE.AmbientLight( 0x404040, 50 ); // soft white light
         scene.current.add( ambientLight.current );
 
         renderer.current = new THREE.WebGLRenderer( { antialias: true } );

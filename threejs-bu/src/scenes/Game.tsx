@@ -115,8 +115,9 @@ export function Game(){
                 color: '#ffffff'
             });
             if (key === account.user_id){
+                insertComponent(player, {id: 'rotation'});
                 insertComponent(player, {id: 'physic', static: true});
-                insertComponent(player, {id: 'controller'});
+                // insertComponent(player, {id: 'controller'});
                 insertComponent(player, {id: 'camera'});
                 insertComponent(player, {id: 'sync'});
             }
@@ -151,7 +152,9 @@ export function Game(){
                 self_transform.x = transform.position.x;
                 self_transform.y = transform.position.y;
                 self_transform.z = transform.position.z;
-                hitbox.quaternion.set(transform.quaternion.x, transform.quaternion.y, transform.quaternion.z, transform.quaternion.w);
+                self_transform.rotate_x = transform.rotation.x;
+                self_transform.rotate_y = transform.rotation.y;
+                self_transform.rotate_z = transform.rotation.z;
                 self_transform.scale = transform.scale;
             }
         )
@@ -173,9 +176,12 @@ export function Game(){
                 return;
 
             // initial
+            let _skin = skin;
+            if (!_skin)
+                _skin = 'knight3.glb';
             await room.current!.track({
                 username: account.username,
-                skin: skin
+                skin: _skin
             });
         });
 
