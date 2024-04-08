@@ -224,6 +224,14 @@ export function Matching(){
                 entity.components['transform'].time_rotate = 0;
             }
         )
+        .on(
+            'broadcast',
+            { event: 'play' },
+            (data) => {
+                let game_id = data.payload.uuid;
+                console.log(game_id);
+            }
+        )
         .subscribe( async(status) =>{
             if (status !== 'SUBSCRIBED')
                 return;
@@ -276,9 +284,8 @@ export function Matching(){
                 }}>
                     Back
                 </motion.div>
-                {
-                    is_host ?
-                    <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
+
+                <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
                     initial={{ scale: 1, color: "#ffffff" }}
                     whileHover={{ scale: 1.2, color: "#000000" }}
                     transition={{
@@ -287,6 +294,9 @@ export function Matching(){
                     }}
                     whileTap={{ scale: 0.8, rotateZ: 0 }}
                     onClick={async () =>{
+                        if (!is_host)
+                            return;
+                        
                         exit();
                         if (rooms.current){
                             rooms.current.untrack();
@@ -306,10 +316,8 @@ export function Matching(){
                             setFading(true, `/Game/${uuid}`);
                         }
                     }}>
-                        Start
+                        {is_host ? 'Start' : 'Wait For The Host To Start'}
                     </motion.div>
-                    : <></>
-                }
 
                 <p className=' text-white p-1'>
                     {room_name}

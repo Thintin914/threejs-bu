@@ -3,6 +3,7 @@ import { Transition } from "./Transition";
 import { Cover } from "./Cover";
 import { Lobby } from './scenes/Lobby';
 import { Matching } from './scenes/Matching';
+import { Game } from './scenes/Game';
 
 export function App(){
 
@@ -14,6 +15,7 @@ export function App(){
                 <Route index element={<Cover />} />
                 <Route path='/lobby' element={<Lobby />} />
                 <Route path='/matching/:id' element={<Matching />} />
+                <Route path='/game/:id' element={<Game />} />
             </Routes>
         <Cover />
     </div>
