@@ -42,7 +42,7 @@ export function Game() {
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
-            file: 'GameMap/arena.glb',
+            file: 'GameMap/arena-3.glb',
             scale: { x: 0.35, y: 0.35, z: 0.35 }
         });
         insertComponent(ground, {
