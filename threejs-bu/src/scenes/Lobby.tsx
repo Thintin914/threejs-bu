@@ -12,18 +12,18 @@ import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useGMStore } from '../utils/zustand/useGMStore';
 
-export function Lobby(){
+export function Lobby() {
 
-    const {account, setHost, skin, setSkin} = useAccountStore();
-    const {setGMState} = useGMStore();
-    const {setFading} = useTransitionStore();
+    const { account, setHost, skin, setSkin } = useAccountStore();
+    const { setGMState } = useGMStore();
+    const { setFading } = useTransitionStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const {camera, scene, system, renderer, world, keyPressed, isReady, screenSize, isStop, exit, init, stop} = useGame({container: container.current!, ui: ui.current!});
+    const { camera, scene, system, renderer, world, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
-    useEffect(() =>{
+    useEffect(() => {
         if (container.current && ui.current)
             init(true);
     }, [container.current, ui.current])
@@ -32,16 +32,16 @@ export function Lobby(){
 
     // add script here
     const counted = useRef<boolean>(false);
-    useEffect(() =>{
+    useEffect(() => {
         if (!account.user_id)
             return;
         if (counted.current)
             return;
         if (!isReady)
             return;
-        counted.current = true; 
+        counted.current = true;
 
-        const f = async() =>{
+        const f = async () => {
             let ground = createEntity('ground');
             insertComponent(ground, { id: 'transform' });
             insertComponent(ground, {
@@ -57,14 +57,14 @@ export function Lobby(){
                 depth: 10
             });
             await insertEntityToSystem(ground, system, scene, world, ui.current!);
-    
+
             let player = createEntity('player');
-            insertComponent(player, {id: 'transform', y: 0.5});
+            insertComponent(player, { id: 'transform', y: 0.5 });
             insertComponent(player, {
                 id: 'model',
                 bucket: 'characters',
                 file: 'players/knight1.glb',
-                scale: {x: 0.001, y: 0.001, z: 0.001}
+                scale: { x: 0.001, y: 0.001, z: 0.001 }
             })
             insertComponent(player, {
                 id: 'hitbox',
@@ -79,9 +79,9 @@ export function Lobby(){
                 size: 12,
                 color: '#ffffff'
             })
-            insertComponent(player, {id: 'physic', static: true});
-            insertComponent(player, {id: 'controller'});
-            insertComponent(player, {id: 'camera'});
+            insertComponent(player, { id: 'physic', static: true });
+            insertComponent(player, { id: 'controller' });
+            insertComponent(player, { id: 'camera' });
             await insertEntityToSystem(player, system, scene, world, ui.current!);
 
             let lobby = createEntity('lobby');
@@ -96,7 +96,7 @@ export function Lobby(){
                 depth: 0.1,
                 color: 0x84a6c9
             });
-            insertComponent(lobby, {id: 'physic'});
+            insertComponent(lobby, { id: 'physic' });
             insertComponent(lobby, {
                 id: 'text',
                 text: 'Lobby',
@@ -106,18 +106,18 @@ export function Lobby(){
                 onClick: () => setOpenRoomMenu(openRoomMenu => !openRoomMenu)
             })
             await insertEntityToSystem(lobby, system, scene, world, ui.current!);
-    
+
             setFading(false, '');
         };
         f();
     }, [isReady])
 
-    useEffect(() =>{
+    useEffect(() => {
         if (!renderer)
             return;
         if (!isReady)
             return;
-        
+
         if (isStop)
             renderer.setAnimationLoop(null);
         else
@@ -131,33 +131,33 @@ export function Lobby(){
     const [roomPlayers, setRoomPlayers] = useState<any>(2);
     const [password, setPassword] = useState<string>('');
 
-    async function OpenRoomMenuAnimation(){
+    async function OpenRoomMenuAnimation() {
         roomMenuScope.current.style.display = 'flex';
         roomMenuScope.current.style.opacity = '0';
-        await roomMenuAnimate(roomMenuScope.current, {opacity: 1});
+        await roomMenuAnimate(roomMenuScope.current, { opacity: 1 });
     }
 
-    async function CloseRoomMenuAnimation(){
+    async function CloseRoomMenuAnimation() {
         roomMenuScope.current.style.display = 'flex';
         roomMenuScope.current.style.opacity = '1';
-        await roomMenuAnimate(roomMenuScope.current, {opacity: 0});
+        await roomMenuAnimate(roomMenuScope.current, { opacity: 0 });
         roomMenuScope.current.style.display = 'none';
     }
 
-    useEffect(() =>{
+    useEffect(() => {
 
-        if (openRoomMenu){
+        if (openRoomMenu) {
             stop(true);
             OpenRoomMenuAnimation();
-        } else{
+        } else {
             stop(false);
             CloseRoomMenuAnimation();
         }
     }, [openRoomMenu])
 
     const rooms = useRef<RealtimeChannel | null>(null);
-    const [roomItems, setRoomItems] = useState<Record<string, {allowed_players: number, current_players: number, room_id: string, password: string, user_password: string, room_name: string, host_id: string}>>({});
-    useEffect(() =>{
+    const [roomItems, setRoomItems] = useState<Record<string, { allowed_players: number, current_players: number, room_id: string, password: string, user_password: string, room_name: string, host_id: string }>>({});
+    useEffect(() => {
         if (!isReady)
             return;
         if (!supabase)
@@ -165,7 +165,7 @@ export function Lobby(){
         if (rooms.current)
             return;
 
-        const f = async() =>{
+        const f = async () => {
 
             rooms.current = supabase.channel('rooms', {
                 config: {
@@ -176,29 +176,29 @@ export function Lobby(){
             });
 
             rooms.current
-            .on('presence', { event: 'sync' }, async() => {
-                const new_state = rooms.current!.presenceState();
-                let dict: typeof roomItems = {};
-                Object.entries(new_state).forEach(([client, data]) =>{
-                    let _data = data[0] as any;
-                    dict[client] = {
-                        allowed_players: _data.allowed_players,
-                        current_players: _data.current_players,
-                        room_id: _data.room_id,
-                        password: _data.password,
-                        user_password: '',
-                        room_name: _data.room_name,
-                        host_id: _data.host_id
-                    };
-                });
-                setRoomItems({...dict});
-                console.log(dict)
-            })
-            .subscribe();
+                .on('presence', { event: 'sync' }, async () => {
+                    const new_state = rooms.current!.presenceState();
+                    let dict: typeof roomItems = {};
+                    Object.entries(new_state).forEach(([client, data]) => {
+                        let _data = data[0] as any;
+                        dict[client] = {
+                            allowed_players: _data.allowed_players,
+                            current_players: _data.current_players,
+                            room_id: _data.room_id,
+                            password: _data.password,
+                            user_password: '',
+                            room_name: _data.room_name,
+                            host_id: _data.host_id
+                        };
+                    });
+                    setRoomItems({ ...dict });
+                    console.log(dict)
+                })
+                .subscribe();
         };
         f();
 
-        return () =>{
+        return () => {
             if (rooms.current)
                 rooms.current.unsubscribe();
         }
@@ -206,17 +206,17 @@ export function Lobby(){
 
     return (
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">
-            
+
             <div className=' z-20 w-full h-full flex justify-start items-start pointer-events-none p-2'>
                 <motion.div className=" pointer-events-auto text-sm font-semibold p-1 pl-2 pr-2 border-2 border-white rounded-md select-none text-white cursor-pointer"
                     initial={{ scale: 1, color: "#ffffff" }}
                     whileHover={{ scale: 1.2, color: "#000000" }}
                     transition={{
-                    type: "spring",
-                    bounce: 0.6,
+                        type: "spring",
+                        bounce: 0.6,
                     }}
                     whileTap={{ scale: 0.8, rotateZ: 0 }}
-                    onClick={() =>{
+                    onClick={() => {
                         exit();
                         setFading(true, '/');
                     }}
@@ -226,9 +226,9 @@ export function Lobby(){
             </div>
 
             <div className=' z-20 w-full h-full absolute flex justify-center items-center select-none pointer-events-none'>
-                
+
                 <motion.div ref={roomMenuScope} className=' w-full h-full bg-[#273457] pointer-events-auto p-2 flex-col justify-start items-start gap-3'
-                    initial={{opacity: 0}}
+                    initial={{ opacity: 0 }}
                     style={{
                         display: 'none'
                     }}
@@ -237,9 +237,9 @@ export function Lobby(){
                         <div className='inline-flex justify-start items-center gap-2'>
                             <div className=' p-1 pl-2 pr-2 rounded-sm cursor-pointer bg-opacity-50'
                                 style={{
-                                    background: menuType === 'all' ? '#d5d3b8': '#8c96b0'
+                                    background: menuType === 'all' ? '#d5d3b8' : '#8c96b0'
                                 }}
-                                onClick={() =>{
+                                onClick={() => {
                                     setMenuType('all');
                                 }}
                             >
@@ -247,9 +247,9 @@ export function Lobby(){
                             </div>
                             <div className=' p-1 pl-2 pr-2 rounded-sm cursor-pointer bg-opacity-50'
                                 style={{
-                                    background: menuType === 'create' ? '#d5d3b8': '#8c96b0'
+                                    background: menuType === 'create' ? '#d5d3b8' : '#8c96b0'
                                 }}
-                                onClick={() =>{
+                                onClick={() => {
                                     setMenuType('create')
                                 }}
                             >
@@ -257,7 +257,7 @@ export function Lobby(){
                             </div>
                         </div>
                         <div className=' p-1 pl-2 pr-2 bg-[#8c96b0] rounded-sm cursor-pointer hover:bg-[#9da7bd] bg-opacity-50'
-                            onClick={() =>{
+                            onClick={() => {
                                 setOpenRoomMenu(false);
                             }}
                         >
@@ -268,113 +268,113 @@ export function Lobby(){
 
                     {
                         menuType === 'all' ?
-                        <div className=' w-full grid grid-cols-1 md:grid-cols-4 text-white font-semibold gap-5'>
-                            {
-                                Object.entries(roomItems).map(([client, item], index) =>{
-                                    return (
-                                        <div key={`room-${index}`} className='bg-[#606e94] rounded-sm p-2 min-h-[150px] flex flex-col justify-start items-start'>
-                                            <div className='w-full inline-flex justify-between items-center'>
-                                                <p>{item.room_name}</p>
+                            <div className=' w-full grid grid-cols-1 md:grid-cols-4 text-white font-semibold gap-5'>
+                                {
+                                    Object.entries(roomItems).map(([client, item], index) => {
+                                        return (
+                                            <div key={`room-${index}`} className='bg-[#606e94] rounded-sm p-2 min-h-[150px] flex flex-col justify-start items-start'>
+                                                <div className='w-full inline-flex justify-between items-center'>
+                                                    <p>{item.room_name}</p>
+                                                    {
+                                                        item.password ?
+                                                            <FaLock /> :
+                                                            <></>
+                                                    }
+                                                </div>
+                                                <hr className=' mt-1 w-full border-[#6b738a]' />
+                                                <div className=' mt-2 w-full flex justify-start items-center gap-2'>
+                                                    <p>{item.current_players}</p>
+                                                    <p>/</p>
+                                                    <p>{item.allowed_players}</p>
+                                                </div>
                                                 {
                                                     item.password ?
-                                                    <FaLock />:
-                                                    <></>
-                                                }
-                                            </div>
-                                            <hr className=' mt-1 w-full border-[#6b738a]' />
-                                            <div className=' mt-2 w-full flex justify-start items-center gap-2'>
-                                                <p>{item.current_players}</p>
-                                                <p>/</p>
-                                                <p>{item.allowed_players}</p>
-                                            </div>
-                                            {
-                                                item.password ?
-                                                <input value={roomItems[client].user_password} type='password' className=' mt-2 rounded-md h-[25px] w-full p-1 bg-white text-black'
-                                                    onChange={(e) =>{
-                                                        setRoomItems({
-                                                            ... roomItems,
-                                                            [client]: {
-                                                                ...item,
-                                                                user_password: e.target.value
-                                                            }
-                                                        })
-                                                    }}
-                                                /> :
-                                                <></>
-                                            }
-                                            <div className=' mt-4 w-full inline-flex justify-end'>
-                                                <div className=' pl-2 pr-2 p-1 bg-[#3c4254] hover:bg-[#575e73] cursor-pointer select-none rounded-sm'
-                                                    onClick={() =>{
-                                                        if (item.current_players + 1 > item.allowed_players)
-                                                            return;
-                                                        if (item.password){
-                                                            if (item.password !== item.user_password){
+                                                        <input value={roomItems[client].user_password} type='password' className=' mt-2 rounded-md h-[25px] w-full p-1 bg-white text-black'
+                                                            onChange={(e) => {
                                                                 setRoomItems({
-                                                                    ... roomItems,
+                                                                    ...roomItems,
                                                                     [client]: {
                                                                         ...item,
-                                                                        user_password: ''
+                                                                        user_password: e.target.value
                                                                     }
                                                                 })
+                                                            }}
+                                                        /> :
+                                                        <></>
+                                                }
+                                                <div className=' mt-4 w-full inline-flex justify-end'>
+                                                    <div className=' pl-2 pr-2 p-1 bg-[#3c4254] hover:bg-[#575e73] cursor-pointer select-none rounded-sm'
+                                                        onClick={() => {
+                                                            if (item.current_players + 1 > item.allowed_players)
                                                                 return;
+                                                            if (item.password) {
+                                                                if (item.password !== item.user_password) {
+                                                                    setRoomItems({
+                                                                        ...roomItems,
+                                                                        [client]: {
+                                                                            ...item,
+                                                                            user_password: ''
+                                                                        }
+                                                                    })
+                                                                    return;
+                                                                }
                                                             }
-                                                        }
 
-                                                        setHost(false);
-                                                        setFading(true, `/matching/${item.room_id}`);
-                                                    }}
-                                                >
-                                                    <p>Enter</p>
+                                                            setHost(false);
+                                                            setFading(true, `/matching/${item.room_id}`);
+                                                        }}
+                                                    >
+                                                        <p>Enter</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                        </div> :
-                        <div className=' w-full flex justify-start items-center'>
-                            <div className=' w-1/3 p-2 bg-[#8c96b0] gap-2 flex flex-col justify-start items-start font-semibold text-white'>
-                                <p>Room Name</p>
-                                <input value={roomName} className=' w-full p-1 rounded-sm text-black'
-                                    onChange={(e) =>{
-                                        setRoomName(e.target.value);
-                                    }}
-                                />
-                                <p>Allowed Players</p>
-                                <input type='number' value={roomPlayers} className=' w-full p-1 rounded-sm text-black'
-                                    onChange={(e) =>{
-                                        let val = parseInt(e.target.value);
-                                        if (val < 2)
-                                            val = 2;
-                                        if (val > 4)
-                                            val = 4;
-                                        setRoomPlayers(val);
-                                    }}
-                                />
-                                <p>Password (Optional)</p>
-                                <input value={password} type='password' className=' w-full p-1 rounded-sm text-black'
-                                    onChange={(e) =>{
-                                        setPassword(e.target.value);
-                                    }}
-                                />
-                                <div className=' mt-5 cursor-pointer hover:opacity-80 w-full inline-flex justify-center items-center p-2 bg-[#273457]'
-                                    onClick={async() =>{
-                                        if (isNaN(roomPlayers))
-                                            return;
-                                        if (!rooms.current)
-                                            return;
+                                        )
+                                    })
+                                }
+                            </div> :
+                            <div className=' w-full flex justify-start items-center'>
+                                <div className=' w-1/3 p-2 bg-[#8c96b0] gap-2 flex flex-col justify-start items-start font-semibold text-white'>
+                                    <p>Room Name</p>
+                                    <input value={roomName} className=' w-full p-1 rounded-sm text-black'
+                                        onChange={(e) => {
+                                            setRoomName(e.target.value);
+                                        }}
+                                    />
+                                    <p>Allowed Players</p>
+                                    <input type='number' value={roomPlayers} className=' w-full p-1 rounded-sm text-black'
+                                        onChange={(e) => {
+                                            let val = parseInt(e.target.value);
+                                            if (val < 2)
+                                                val = 2;
+                                            if (val > 4)
+                                                val = 4;
+                                            setRoomPlayers(val);
+                                        }}
+                                    />
+                                    <p>Password (Optional)</p>
+                                    <input value={password} type='password' className=' w-full p-1 rounded-sm text-black'
+                                        onChange={(e) => {
+                                            setPassword(e.target.value);
+                                        }}
+                                    />
+                                    <div className=' mt-5 cursor-pointer hover:opacity-80 w-full inline-flex justify-center items-center p-2 bg-[#273457]'
+                                        onClick={async () => {
+                                            if (isNaN(roomPlayers))
+                                                return;
+                                            if (!rooms.current)
+                                                return;
 
-                                        exit();
+                                            exit();
 
-                                        setGMState(roomPlayers, 0, account.user_id, password, roomName);
-                                        setHost(true);
-                                        setFading(true, `/matching/${account.user_id}`);
-                                    }}
-                                >
-                                    Create
+                                            setGMState(roomPlayers, 0, account.user_id, password, roomName);
+                                            setHost(true);
+                                            setFading(true, `/matching/${account.user_id}`);
+                                        }}
+                                    >
+                                        Create
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                     }
 
                 </motion.div>
