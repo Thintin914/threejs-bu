@@ -35,9 +35,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     if (component.time_rotate < 1){
                         model.quaternion.setFromEuler(
                             new THREE.Euler(
-                                component.rotate_x,
-                                lerp(model.rotation.y, component.rotate_y, component.time_rotate),
-                                component.rotate_z
+                                component.rotate_x + component.rotate_offset.x,
+                                lerp(model.rotation.y, component.rotate_y, component.time_rotate) + component.rotate_offset.y,
+                                component.rotate_z + component.rotate_offset.z
                             )
                         );
                         if (component.time_rotate + 0.01 < 1)
@@ -57,14 +57,14 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                                 id: entity.id,
                                 transform: {
                                     rotation: {
-                                        x: transform.rotate_x,
-                                        y: transform.rotate_y,
-                                        z: transform.rotate_z
+                                        x: transform.rotate_x + transform.rotate_offset.x,
+                                        y: transform.rotate_y + transform.rotate_offset.y,
+                                        z: transform.rotate_z + transform.rotate_offset.z
                                     },
                                     position: {
-                                        x: transform.x,
-                                        y: transform.y,
-                                        z: transform.z
+                                        x: transform.x + transform.offset.x,
+                                        y: transform.y + transform.offset.y,
+                                        z: transform.z + transform.offset.z
                                     },
                                     scale: transform.scale
                                 }

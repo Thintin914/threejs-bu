@@ -119,6 +119,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
             rotate_x: transform.rotate_x ? transform.rotate_x : 0,
             rotate_y: transform.rotate_y ? transform.rotate_y : 0,
             rotate_z: transform.rotate_z ? transform.rotate_z : 0,
+            rotate_offset: transform.rotate_offset ? transform.rotate_offset : {x: 0, y: 0, z: 0},
             scale: _scale,
             time_scale: 0,
             time_rotate: 0
@@ -127,9 +128,9 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
         model.translateX(transform.x + transform.offset.x);
         model.translateY(transform.y + transform.offset.y);
         model.translateZ(transform.z + transform.offset.z);
-        model.rotateX(transform.rotate_x);
-        model.rotateY(transform.rotate_y);
-        model.rotateZ(transform.rotate_z);
+        model.rotateX(transform.rotate_x + transform.rotate_offset.x);
+        model.rotateY(transform.rotate_y + transform.rotate_offset.y);
+        model.rotateZ(transform.rotate_z + transform.rotate_offset.z);
         model.scale.set(0, 0, 0);
 
     }

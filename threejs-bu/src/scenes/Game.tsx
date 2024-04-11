@@ -46,6 +46,12 @@ export function Game() {
             scale: { x: 0.35, y: 0.35, z: 0.35 }
         });
         insertComponent(ground, {
+            id: 'dev_hitbox',
+            width: 10,
+            height: 0.1,
+            depth: 10
+        });
+        insertComponent(ground, {
             id: 'hitbox',
             width: 10,
             height: 0.1,
