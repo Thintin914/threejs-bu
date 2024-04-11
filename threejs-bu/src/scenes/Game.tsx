@@ -38,18 +38,16 @@ export function Game() {
         counted.current = true;
 
         let ground = createEntity('ground');
-        insertComponent(ground, { id: 'transform' });
+        insertComponent(ground, {
+            id: 'transform',
+            y: -0.5,
+            offset: {x: 0, y: 0, z: 0} 
+        });
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
             file: 'GameMap/arena-3.glb',
             scale: { x: 0.35, y: 0.35, z: 0.35 }
-        });
-        insertComponent(ground, {
-            id: 'dev_hitbox',
-            width: 10,
-            height: 0.1,
-            depth: 10
         });
         insertComponent(ground, {
             id: 'hitbox',

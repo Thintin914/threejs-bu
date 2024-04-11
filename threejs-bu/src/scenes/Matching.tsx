@@ -181,7 +181,7 @@ export function Matching() {
                     color: '#ffffff'
                 });
                 if (key === account.user_id) {
-                    insertComponent(player, { id: 'physic', static: true });
+                    insertComponent(player, { id: 'physic', static: true, apply_force: true });
                     insertComponent(player, { id: 'controller' });
                     insertComponent(player, { id: 'camera' });
                     insertComponent(player, { id: 'sync' });

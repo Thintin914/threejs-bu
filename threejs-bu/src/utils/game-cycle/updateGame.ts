@@ -156,11 +156,15 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             directionVector.set(0, 0, 1);
                             directionVector.applyMatrix4(rotationMatrix);
                             component.vector = directionVector;
+                            component.speed = 0.05;
                         }
+                        component.speed *= 1.2;
+                        if (component.speed > 5)
+                            component.speed = 5;
 
-                        physic.vel_x = component.vector.x * 0.5;
-                        physic.vel_y = component.vector.y * 0.5;
-                        physic.vel_z = component.vector.z * 0.5;
+                        physic.vel_x = component.vector.x * component.speed;
+                        physic.vel_y = component.vector.y * component.speed;
+                        physic.vel_z = component.vector.z * component.speed;
 
                     } else {
                         transform.rotate_y = (transform.rotate_y + 0.05) % 360;
@@ -174,6 +178,14 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     const transform = entity.components['transform'];
                     if (component.static)
                         hitbox.quaternion.setFromEuler(transform.rotate_x, transform.rotate_y, transform.rotate_z);
+
+                    if (component.apply_force){
+                        if (component.collide_index > -1){
+                            console.log(world.bodies[component.collide_index]);
+                            component.collide_index = -1;
+                        }
+                    }
+
                     hitbox.velocity.set(component.vel_x, component.vel_y, component.vel_z);
                     component.vel_x *= 0.8;
                     component.vel_y *= 0.8;

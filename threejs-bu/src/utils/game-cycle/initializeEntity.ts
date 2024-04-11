@@ -17,6 +17,11 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
     for(let i = 0; i < components.length; i++){
         let component = components[i];
         switch (component.id){
+            case 'controller2': {
+                component.speed = 0;
+                component.vector = {x: 0, y: 0, z: 0};
+                break;
+            }
             case 'sync': {
                 component.t = 0;
                 break;
@@ -74,10 +79,18 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 component.vel_cam_y = 0;
                 component.vel_cam_z = 0;
 
+                component.collide_index = -1;
                 let hitbox = entity.gameObject.hitbox as CANNON.Body;
                 hitbox.mass = component.mass ? component.mass : 1;
                 hitbox.type = CANNON.Body.DYNAMIC;
                 hitbox.updateMassProperties();
+
+                if (component.apply_force){
+                    const onCollide = (e: any) =>{
+                        component.collide_index = e.target.index;
+                    }
+                    hitbox.addEventListener('collide', onCollide);
+                }
                 break;
             }
             case 'text': {
