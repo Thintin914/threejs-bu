@@ -11,10 +11,12 @@ import { FaLock } from "react-icons/fa";
 import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useGMStore } from '../utils/zustand/useGMStore';
+import { useAudio } from '../utils/useAudio';
 
 export function Lobby() {
 
     const { account, setHost, skin, setSkin } = useAccountStore();
+    const { audio } = useAudio({ bucket: 'music', file: 'LobbyBGM.mp3' });
     const { setGMState } = useGMStore();
     const { setFading } = useTransitionStore();
 
@@ -42,6 +44,9 @@ export function Lobby() {
         counted.current = true;
 
         const f = async () => {
+
+
+
             let ground = createEntity('ground');
             insertComponent(ground, { id: 'transform' });
             insertComponent(ground, {

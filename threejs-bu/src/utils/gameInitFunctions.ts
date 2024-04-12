@@ -4,13 +4,11 @@ import { initializeEntity } from './game-cycle/initializeEntity';
 import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
-export async function downloadFile(bucket: string, file: string){
-    console.log('download file')
+export async function downloadFile(bucket: string, file: string) {
     const { data, error } = await supabase
-    .storage
-    .from(bucket)
-    .download(file);
-    console.log('download end')
+        .storage
+        .from(bucket)
+        .download(file);
     return data;
 }
 export type GameObject = {
@@ -26,7 +24,7 @@ export type Component = {
     [key: string]: any
 }
 
-export function createEntity(id: string){
+export function createEntity(id: string) {
     const entity: Entity = {
         id: id,
         components: {},
@@ -34,23 +32,23 @@ export function createEntity(id: string){
     }
     return entity;
 }
-export function insertComponent(entity: Entity, component: Component){
+export function insertComponent(entity: Entity, component: Component) {
     entity.components[component.id] = component;
 }
-export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, room?: RealtimeChannel){
+export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, room?: RealtimeChannel) {
     await initializeEntity(entity, scene, world, ui, room);
     system[entity.id] = entity;
 }
 export function lerp(start: number, end: number, t: number) {
     return start * (1 - t) + end * t;
 }
-export function worldToScreenPosition(width: number, height: number, x: number, y: number, z: number, camera: THREE.PerspectiveCamera){
+export function worldToScreenPosition(width: number, height: number, x: number, y: number, z: number, camera: THREE.PerspectiveCamera) {
     let widthHalf = width / 2;
     let heightHalf = height / 2;
-    
+
     let pos = new THREE.Vector3(x, y, z);
     pos.project(camera);
-    pos.x = ( pos.x * widthHalf ) + widthHalf;
-    pos.y = - ( pos.y * heightHalf ) + heightHalf;
+    pos.x = (pos.x * widthHalf) + widthHalf;
+    pos.y = - (pos.y * heightHalf) + heightHalf;
     return pos;
 }
