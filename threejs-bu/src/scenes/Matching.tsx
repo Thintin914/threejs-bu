@@ -138,7 +138,7 @@ export function Matching() {
                 if (!new_state_dict)
                     return;
                 const _data = new_state_dict[0] as any;
-                setGMState(_data.allowed_players, _data.current_players, _data.room_id, _data.password, _data.room_name);
+                setGMState(_data.allowed_players, _data.current_players, _data.room_id, _data.password, _data.room_name, _data.host_id);
             })
             .subscribe(async (status) => {
                 if (status !== 'SUBSCRIBED')
@@ -186,7 +186,7 @@ export function Matching() {
                     color: '#ffffff'
                 });
                 if (key === account.user_id) {
-                    insertComponent(player, { id: 'physic', static: true, apply_force: true });
+                    insertComponent(player, { id: 'physic', static: true });
                     insertComponent(player, { id: 'controller' });
                     insertComponent(player, { id: 'camera' });
                     insertComponent(player, { id: 'sync' });

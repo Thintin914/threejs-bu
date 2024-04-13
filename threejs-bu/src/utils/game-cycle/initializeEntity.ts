@@ -21,8 +21,12 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
     for(let i = 0; i < components.length; i++){
         let component = components[i];
         switch (component.id){
-            case 'type': {
-                console.log(component)
+            case 'spotlight': {
+                const spotLight = new THREE.SpotLight( component.color, component.intensity, component.distance );
+                spotLight.position.set( transform.x, transform.y, transform.z );
+                entity.gameObject.model = spotLight;
+
+                component.follow_id = component.follow_id ? component.follow_id : '';
                 break;
             }
             case 'controller2': {
@@ -39,7 +43,6 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
             case 'model': {
                 let model_blob = null;
                 if (caches[`${component.bucket}/${component.file}`]){
-                    console.log('reuse model');
                     model_blob = caches[`${component.bucket}/${component.file}`];
                 } else {
                     model_blob = await downloadFile(component.bucket, component.file);
@@ -67,6 +70,11 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
             }
             case 'dev_hitbox': {
                 entity.gameObject.dev_hitbox = new THREE.Mesh( new THREE.BoxGeometry( component.width, component.height, component.depth ), new THREE.MeshBasicMaterial( {color: 0xcbdbb8} ) );
+                scene.add(entity.gameObject.dev_hitbox);
+                break;
+            }
+            case 'dev_circle_plane': {
+                entity.gameObject.dev_hitbox = new THREE.Mesh( new THREE.CylinderGeometry(component.radius * _scale.x, component.radius * _scale.x, 0.2, component.segments), new THREE.MeshBasicMaterial( {color: 0xcbdbb8, side: THREE.DoubleSide} ) );
                 scene.add(entity.gameObject.dev_hitbox);
                 break;
             }

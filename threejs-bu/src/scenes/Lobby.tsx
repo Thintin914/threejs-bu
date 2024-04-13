@@ -372,7 +372,7 @@ export function Lobby() {
 
                                             exit();
 
-                                            setGMState(roomPlayers, 0, account.user_id, password, roomName);
+                                            setGMState(roomPlayers, 0, account.user_id, password, roomName, account.user_id);
                                             setHost(true);
                                             setAudio('music', 'LobbyBGM.mp3');
                                             setFading(true, `/matching/${account.user_id}`);

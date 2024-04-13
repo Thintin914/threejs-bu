@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import { useAccountStore } from '../utils/zustand/useAccountStore';
 import * as CANNON from 'cannon-es'
 import { useCacheStore } from '../utils/zustand/useCacheStore';
+import { useGMStore } from '../utils/zustand/useGMStore';
 
 export function Game() {
 
@@ -18,6 +19,8 @@ export function Game() {
     const { fade, setFading } = useTransitionStore();
     const { account, skin } = useAccountStore();
     const {caches, setCaches} = useCacheStore();
+
+    const {host_id} = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -57,6 +60,21 @@ export function Game() {
             depth: 4
         });
         insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
+
+        let spotlight = createEntity('spotlight');
+        insertComponent(spotlight, {id: 'type', name: 'spotlight'});
+        insertComponent(spotlight, {
+            id: 'transform',
+            x: 0, y: 0, z: 0,
+            offset: {x: 0, y: 0.5, z: 0}
+        });
+        insertComponent(spotlight, {
+            id: 'spotlight',
+            color: 0xEB80F3,
+            intensity: 1.2,
+            distance: 0.8
+        });
+        insertEntityToSystem(spotlight, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])
@@ -133,6 +151,12 @@ export function Game() {
                     insertComponent(player, { id: 'controller2' });
                     insertComponent(player, { id: 'camera2' });
                     insertComponent(player, { id: 'sync' });
+                    if (newPresences[0].is_host){
+                        const spotlight = system['spotlight'];
+                        if (spotlight){
+                            spotlight.components['spotlight'].follow_id = key;
+                        }
+                    }
                 }
                 await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
                 stop(false);
@@ -220,7 +244,8 @@ export function Game() {
                     _skin = 'knight3.glb';
                 await room.current!.track({
                     username: account.username,
-                    skin: _skin
+                    skin: _skin,
+                    is_host: host_id === account.user_id ? true : false
                 });
             });
 

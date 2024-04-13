@@ -7,10 +7,23 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
     Object.values(system).forEach((entity) =>{
         Object.values(entity.components).forEach((component) =>{
             switch (component.id){
+                case 'spotlight': {
+                    if (component.follow_id){
+                        let follow_entity = system[component.follow_id];
+                        if (follow_entity){
+                            const follow_entity_transform = follow_entity.components['transform'];
+                            const transform = entity.components['transform'];
+                            transform.x = follow_entity_transform.x;
+                            transform.y = follow_entity_transform.y;
+                            transform.z = follow_entity_transform.z;
+                        }
+                    }
+                    break;
+                }
                 case 'dev_hitbox': {
                     const dev_hitbox = entity.gameObject.dev_hitbox;
-                    const hitbox = entity.gameObject.hitbox as CANNON.Body;
-                    dev_hitbox.position.copy(hitbox.position);
+                    const transform = entity.components['transform'];
+                    dev_hitbox.position.set(transform.x, transform.y, transform.z);
                     break;
                 }
                 case 'transform': {
@@ -47,7 +60,7 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                 }
                 case 'sync': {
                     component.t++;
-                    if (component.t > 9){
+                    if (component.t > 4){
                         const transform = entity.components['transform'];
                         component.t = 0;
                         room!.send({
@@ -200,7 +213,8 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             let entity_id = hitboxRef[world.bodies[component.collide_index].index]
                             component.collide_index = -1;
                             const opponent = system[entity_id];
-                            if (opponent.components['type'].name === 'player'){
+                            const opponent_type = opponent.components['type'].name;
+                            if (opponent_type === 'player'){
                                 const opponent_vector = new THREE.Vector3(component.vel_x, component.vel_y, component.vel_z).normalize();
                                 if (sync){
                                     room!.send({
