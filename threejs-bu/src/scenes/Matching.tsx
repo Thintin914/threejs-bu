@@ -13,14 +13,16 @@ import { useAccountStore } from '../utils/zustand/useAccountStore';
 import { useGMStore } from '../utils/zustand/useGMStore';
 import * as CANNON from 'cannon-es'
 import { generateUUID } from 'three/src/math/MathUtils';
+import { useCacheStore } from '../utils/zustand/useCacheStore';
 
 
 export function Matching() {
 
     const { id } = useParams();
-    const { setFading } = useTransitionStore();
+    const { fade, setFading, setAudio } = useTransitionStore();
     const { allowed_players, current_players, room_id, room_name, password, clearGMState, setGMState } = useGMStore();
     const { account, is_host, setSkin } = useAccountStore();
+    const {caches, setCaches} = useCacheStore();
 
     const [_current_players, _set_current_players] = useState<number>(0);
 
@@ -62,7 +64,7 @@ export function Matching() {
             height: 0.1,
             depth: 3.2
         });
-        insertEntityToSystem(ground, system, scene, world, ui.current!);
+        insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])
@@ -104,6 +106,8 @@ export function Matching() {
     const rooms = useRef<RealtimeChannel | null>(null);
     useEffect(() => {
         if (!id)
+            return;
+        if (fade)
             return;
         if (!isReady)
             return;
@@ -186,7 +190,7 @@ export function Matching() {
                     insertComponent(player, { id: 'camera' });
                     insertComponent(player, { id: 'sync' });
                 }
-                await insertEntityToSystem(player, system, scene, world, ui.current!);
+                await insertEntityToSystem(player, system, scene, world, ui.current!, setCaches, caches);
                 stop(false);
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
@@ -248,6 +252,7 @@ export function Matching() {
                     if (room.current) {
                         room.current.untrack();
                         room.current.unsubscribe();
+                        setAudio('music', 'GameBGM.mp3');
                         setFading(true, `/Game/${game_id}`);
                     }
                 }
@@ -275,7 +280,7 @@ export function Matching() {
                 rooms.current.unsubscribe();
             }
         }
-    }, [isReady])
+    }, [isReady, fade])
 
     return (
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">
@@ -301,6 +306,7 @@ export function Matching() {
                         }
                         exit();
                         clearGMState();
+                        setAudio('music', 'LobbyBGM.mp3');
                         setFading(true, '/lobby');
                     }}>
                     Back
@@ -334,6 +340,7 @@ export function Matching() {
                             });
                             room.current.untrack();
                             room.current.unsubscribe();
+                            setAudio('music', 'GameBGM.mp3');
                             setFading(true, `/Game/${uuid}`);
                         }
                     }}>

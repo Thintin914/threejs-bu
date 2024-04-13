@@ -28,7 +28,7 @@ const people = [
 export function Cover() {
 
   const { setAccount, account } = useAccountStore();
-  const { setFading } = useTransitionStore();
+  const { setFading, setAudio } = useTransitionStore();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -138,6 +138,7 @@ export function Cover() {
                   }}
                   whileTap={{ scale: 0.8, rotateZ: 0 }}
                   onClick={() => {
+                    setAudio('music', 'LobbyBGM.mp3');
                     setFading(true, '/lobby');
                   }}
                 >

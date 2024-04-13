@@ -6,11 +6,13 @@ import { createEntity, insertComponent, insertEntityToSystem } from '../utils/ga
 import { updateGame } from '../utils/game-cycle/updateGame';
 import { GameUILayer } from '../utils/GameUILayer';
 import { GameContainerLayer } from '../utils/GameContainerLayer';
+import { useCacheStore } from '../utils/zustand/useCacheStore';
 
 
 export function TemplateScene() {
 
     const { setFading } = useTransitionStore();
+    const {caches, setCaches} = useCacheStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -45,7 +47,7 @@ export function TemplateScene() {
             height: 0.1,
             depth: 10
         });
-        insertEntityToSystem(ground, system, scene, world, ui.current!);
+        insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])

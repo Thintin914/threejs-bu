@@ -10,6 +10,9 @@ export function App(){
     return (
     <BrowserRouter>
     <div className=' relative w-full h-screen overflow-hidden'>
+        <div id='audio' className='hidden'>
+
+        </div>
         <Transition />
             <Routes>
                 <Route index element={<Cover />} />

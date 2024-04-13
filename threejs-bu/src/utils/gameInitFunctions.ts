@@ -5,10 +5,12 @@ import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 export async function downloadFile(bucket: string, file: string) {
+    console.log('download starts')
     const { data, error } = await supabase
         .storage
         .from(bucket)
         .download(file);
+    console.log('download ends');
     return data;
 }
 export type GameObject = {
@@ -35,8 +37,8 @@ export function createEntity(id: string) {
 export function insertComponent(entity: Entity, component: Component) {
     entity.components[component.id] = component;
 }
-export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, room?: RealtimeChannel) {
-    await initializeEntity(entity, scene, world, ui, room);
+export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel) {
+    await initializeEntity(entity, scene, world, ui, setCaches, caches, room);
     system[entity.id] = entity;
 }
 export function lerp(start: number, end: number, t: number) {

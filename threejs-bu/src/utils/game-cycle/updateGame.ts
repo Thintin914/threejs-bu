@@ -158,9 +158,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             component.vector = directionVector;
                             component.speed = 0.05;
                         }
-                        component.speed *= 1.2;
-                        if (component.speed > 5)
-                            component.speed = 5;
+                        component.speed *= 1.1;
+                        if (component.speed > 2)
+                            component.speed = 2;
 
                         physic.vel_x = component.vector.x * component.speed;
                         physic.vel_y = component.vector.y * component.speed;

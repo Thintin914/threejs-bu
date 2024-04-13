@@ -11,14 +11,15 @@ import { FaLock } from "react-icons/fa";
 import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useGMStore } from '../utils/zustand/useGMStore';
-import { useAudio } from '../utils/useAudio';
+import { useCacheStore } from '../utils/zustand/useCacheStore';
 
 export function Lobby() {
 
-    const { account, setHost, skin, setSkin } = useAccountStore();
-    const { audio } = useAudio({ bucket: 'music', file: 'LobbyBGM.mp3' });
+    const { account, setHost } = useAccountStore();
     const { setGMState } = useGMStore();
-    const { setFading } = useTransitionStore();
+    const { setFading, setAudio } = useTransitionStore();
+    const {caches, setCaches} = useCacheStore();
+
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -45,8 +46,6 @@ export function Lobby() {
 
         const f = async () => {
 
-
-
             let ground = createEntity('ground');
             insertComponent(ground, { id: 'transform' });
             insertComponent(ground, {
@@ -61,7 +60,7 @@ export function Lobby() {
                 height: 0.1,
                 depth: 10
             });
-            await insertEntityToSystem(ground, system, scene, world, ui.current!);
+            await insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
 
             let player = createEntity('player');
             insertComponent(player, { id: 'transform', y: 0.5 });
@@ -87,7 +86,7 @@ export function Lobby() {
             insertComponent(player, { id: 'physic', static: true });
             insertComponent(player, { id: 'controller' });
             insertComponent(player, { id: 'camera' });
-            await insertEntityToSystem(player, system, scene, world, ui.current!);
+            await insertEntityToSystem(player, system, scene, world, ui.current!, setCaches, caches);
 
             let lobby = createEntity('lobby');
             insertComponent(lobby, {
@@ -110,7 +109,7 @@ export function Lobby() {
                 color: '#ffffff',
                 onClick: () => setOpenRoomMenu(openRoomMenu => !openRoomMenu)
             })
-            await insertEntityToSystem(lobby, system, scene, world, ui.current!);
+            await insertEntityToSystem(lobby, system, scene, world, ui.current!, setCaches, caches);
 
             setFading(false, '');
         };
@@ -326,6 +325,7 @@ export function Lobby() {
                                                             }
 
                                                             setHost(false);
+                                                            setAudio('music', 'LobbyBGM.mp3');
                                                             setFading(true, `/matching/${item.room_id}`);
                                                         }}
                                                     >
@@ -373,6 +373,7 @@ export function Lobby() {
 
                                             setGMState(roomPlayers, 0, account.user_id, password, roomName);
                                             setHost(true);
+                                            setAudio('music', 'LobbyBGM.mp3');
                                             setFading(true, `/matching/${account.user_id}`);
                                         }}
                                     >

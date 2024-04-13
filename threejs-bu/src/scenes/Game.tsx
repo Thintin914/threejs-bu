@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useTransitionStore } from '../utils/zustand/useTransitionStore';
 import { useGame } from '../utils/useGame';
 import { createEntity, insertComponent, insertEntityToSystem } from '../utils/gameInitFunctions';
@@ -11,12 +10,14 @@ import { supabase } from '..';
 import { useParams } from 'react-router-dom';
 import { useAccountStore } from '../utils/zustand/useAccountStore';
 import * as CANNON from 'cannon-es'
+import { useCacheStore } from '../utils/zustand/useCacheStore';
 
 export function Game() {
 
     const { id } = useParams();
-    const { setFading } = useTransitionStore();
+    const { fade, setFading } = useTransitionStore();
     const { account, skin } = useAccountStore();
+    const {caches, setCaches} = useCacheStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -47,15 +48,15 @@ export function Game() {
             id: 'model',
             bucket: 'scenes',
             file: 'GameMap/arenaM.glb',
-            scale: { x: 7.0, y: 2.0, z: 3.5 }
+            scale: { x: 3.0, y: 3.0, z: 3.0 }
         });
         insertComponent(ground, {
             id: 'hitbox',
-            width: 10,
+            width: 3,
             height: 0.7,
-            depth: 10
+            depth: 4
         });
-        insertEntityToSystem(ground, system, scene, world, ui.current!);
+        insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])
@@ -78,6 +79,8 @@ export function Game() {
         if (!isReady)
             return;
         if (!id)
+            return;
+        if (fade)
             return;
         if (room.current)
             return;
@@ -130,7 +133,7 @@ export function Game() {
                     insertComponent(player, { id: 'camera' });
                     insertComponent(player, { id: 'sync' });
                 }
-                await insertEntityToSystem(player, system, scene, world, ui.current!);
+                await insertEntityToSystem(player, system, scene, world, ui.current!, setCaches, caches);
                 stop(false);
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
@@ -200,7 +203,7 @@ export function Game() {
                 room.current.unsubscribe();
             }
         }
-    }, [isReady])
+    }, [isReady, fade])
 
     return (
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">

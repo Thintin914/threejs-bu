@@ -6,7 +6,11 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 
 export const loader = new GLTFLoader();
 
-export async function initializeEntity(entity: Entity, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, room?: RealtimeChannel){
+const threeTone = new THREE.DataTexture(
+    Uint8Array.from([0, 0, 0, 255, 128, 128, 128, 255, 255, 255, 255, 255]),3,1,THREE.RGBAFormat
+);
+
+export async function initializeEntity(entity: Entity, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel){
     let transform = entity.components['transform'];
     let _scale = {x: 1, y: 1, z: 1};
     if (transform.scale){
@@ -27,13 +31,22 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 break;
             }
             case 'model': {
-                let model_blob = await downloadFile(component.bucket, component.file);
+                let model_blob = null;
+                if (caches[`${component.bucket}/${component.file}`]){
+                    console.log('reuse model');
+                    model_blob = caches[`${component.bucket}/${component.file}`];
+                } else {
+                    model_blob = await downloadFile(component.bucket, component.file);
+                    if (model_blob)
+                        setCaches(`${component.bucket}/${component.file}`, model_blob);
+                }
                 if (!model_blob)
                     continue;
 
                 let model_array_buffer = await model_blob?.arrayBuffer();
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
+
                 _scale = component.scale;
                 entity.gameObject.model = model;
                 break;
