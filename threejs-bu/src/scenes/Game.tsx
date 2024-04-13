@@ -45,19 +45,19 @@ export function Game() {
         insertComponent(ground, {
             id: 'transform',
             y: -0.5,
-            offset: { x: 0, y: 0.3, z: 0 }
+            offset: { x: 0, y: 0.1, z: -0.25 }
         });
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
-            file: 'GameMap/arenaM.glb',
-            scale: { x: 1.2, y: 1.2, z: 1.2 }
+            file: 'WaitingRoom/siege_camp_scene.glb',
+            scale: { x: 2.60, y: 2.60, z: 2.60 }
         });
         insertComponent(ground, {
             id: 'hitbox',
-            width: 3,
-            height: 0.7,
-            depth: 4
+            width: 7,
+            height: 0.1,
+            depth: 3.2
         });
         insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
@@ -66,13 +66,13 @@ export function Game() {
         insertComponent(spotlight, {
             id: 'transform',
             x: 0, y: 0, z: 0,
-            offset: {x: 0, y: 0.5, z: 0}
+            offset: {x: 0, y: 0.45, z: 0}
         });
         insertComponent(spotlight, {
             id: 'spotlight',
-            color: 0xEB80F3,
-            intensity: 1.2,
-            distance: 0.8
+            color: 0xFDD837,
+            intensity: 3,
+            distance: 3.5
         });
         insertEntityToSystem(spotlight, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 

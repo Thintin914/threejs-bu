@@ -11,11 +11,14 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     if (component.follow_id){
                         let follow_entity = system[component.follow_id];
                         if (follow_entity){
+                            const spotlight = entity.gameObject.model;
+                            spotlight.target = follow_entity.gameObject.model;
                             const follow_entity_transform = follow_entity.components['transform'];
                             const transform = entity.components['transform'];
                             transform.x = follow_entity_transform.x;
                             transform.y = follow_entity_transform.y;
                             transform.z = follow_entity_transform.z;
+
                         }
                     }
                     break;

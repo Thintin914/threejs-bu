@@ -22,7 +22,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
         let component = components[i];
         switch (component.id){
             case 'spotlight': {
-                const spotLight = new THREE.SpotLight( component.color, component.intensity, component.distance );
+                const spotLight = new THREE.SpotLight( component.color, component.intensity, component.distance, 0.295);
                 spotLight.position.set( transform.x, transform.y, transform.z );
                 entity.gameObject.model = spotLight;
 
@@ -74,6 +74,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 break;
             }
             case 'dev_circle_plane': {
+                component.id = 'dev_hitbox';
                 entity.gameObject.dev_hitbox = new THREE.Mesh( new THREE.CylinderGeometry(component.radius * _scale.x, component.radius * _scale.x, 0.2, component.segments), new THREE.MeshBasicMaterial( {color: 0xcbdbb8, side: THREE.DoubleSide} ) );
                 scene.add(entity.gameObject.dev_hitbox);
                 break;
