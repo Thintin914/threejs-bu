@@ -198,9 +198,9 @@ export function Game() {
                     if (!transform)
                         return;
                     let new_position = {
-                        x: data.payload.x * 2,
-                        y: data.payload.y * 2,
-                        z: data.payload.z * 2
+                        x: data.payload.x * 4,
+                        y: data.payload.y * 4,
+                        z: data.payload.z * 4
                     }
                     let hitbox = system[entity_id].gameObject.hitbox as CANNON.Body;
                     hitbox.position.set(hitbox.position.x + new_position.x, hitbox.position.y + new_position.y, hitbox.position.z + new_position.z);

@@ -158,12 +158,13 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             component.vector = directionVector;
                             component.speed = 0.05;
                             component.cooldown = 10;
+                            component.clockwise = !component.clockwise;
                         }
                         physic.vel_cam_x += component.vector.x * 0.05;
                         physic.vel_cam_y += component.vector.y * 0.05;
 
                         if (component.speed > 2){
-                            component.cooldown = 20;
+                            component.cooldown = 10;
                         }
 
                         if (component.cooldown > 0){
@@ -177,7 +178,11 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                         physic.vel_y = component.vector.y * component.speed;
                         physic.vel_z = component.vector.z * component.speed;
                     } else {
-                        transform.rotate_y = (transform.rotate_y + 0.05) % 360;
+                        if (component.clockwise){
+                            transform.rotate_y = (transform.rotate_y + 0.05) % 360;
+                        } else {
+                            transform.rotate_y = (transform.rotate_y - 0.05) % 360;
+                        }
                     }
 
                     component.previous = keyPressed;
@@ -211,9 +216,9 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                                 }
                                 const opponent_transform = opponent.components['transform'];
                                 opponent_transform.time_rotate = 0;
-                                opponent_transform.x += opponent_vector.x * 2;
-                                opponent_transform.y += opponent_vector.y * 2;
-                                opponent_transform.z += opponent_vector.z * 2;
+                                opponent_transform.x += opponent_vector.x * 4;
+                                opponent_transform.y += opponent_vector.y * 4;
+                                opponent_transform.z += opponent_vector.z * 4;
                             }
                         }
                     }

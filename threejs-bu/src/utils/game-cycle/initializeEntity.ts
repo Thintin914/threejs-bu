@@ -29,6 +29,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 component.speed = 0;
                 component.vector = {x: 0, y: 0, z: 0};
                 component.cooldown = 0;
+                component.clockwise = true;
                 break;
             }
             case 'sync': {
