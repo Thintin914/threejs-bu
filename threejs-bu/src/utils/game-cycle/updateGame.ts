@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es'
 import { Entity, lerp, worldToScreenPosition } from '../gameInitFunctions';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
-export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: THREE.WebGLRenderer, system: Record<string, Entity>, keyPressed: Record<string, boolean>, camera: THREE.PerspectiveCamera, screenSize: {width: number, height: number}, room?: RealtimeChannel){
+export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: THREE.WebGLRenderer, system: Record<string, Entity>, hitboxRef: Record<number, string>, keyPressed: Record<string, boolean>, camera: THREE.PerspectiveCamera, screenSize: {width: number, height: number}, room?: RealtimeChannel){
     Object.values(system).forEach((entity) =>{
         Object.values(entity.components).forEach((component) =>{
             switch (component.id){
@@ -157,15 +157,25 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                             directionVector.applyMatrix4(rotationMatrix);
                             component.vector = directionVector;
                             component.speed = 0.05;
+                            component.cooldown = 10;
                         }
-                        component.speed *= 1.1;
-                        if (component.speed > 2)
-                            component.speed = 2;
+                        physic.vel_cam_x += component.vector.x * 0.05;
+                        physic.vel_cam_y += component.vector.y * 0.05;
+
+                        if (component.speed > 2){
+                            component.cooldown = 20;
+                        }
+
+                        if (component.cooldown > 0){
+                            component.cooldown -= 1;
+                            component.speed *= 0.8;
+                        } else {
+                            component.speed *= 1.2;
+                        }
 
                         physic.vel_x = component.vector.x * component.speed;
                         physic.vel_y = component.vector.y * component.speed;
                         physic.vel_z = component.vector.z * component.speed;
-
                     } else {
                         transform.rotate_y = (transform.rotate_y + 0.05) % 360;
                     }
@@ -176,17 +186,42 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                 case 'physic': {
                     const hitbox = entity.gameObject.hitbox as CANNON.Body;
                     const transform = entity.components['transform'];
+                    const sync = entity.components['sync'];
                     if (component.static)
                         hitbox.quaternion.setFromEuler(transform.rotate_x, transform.rotate_y, transform.rotate_z);
 
                     if (component.apply_force){
                         if (component.collide_index > -1){
-                            console.log(world.bodies[component.collide_index]);
+                            let entity_id = hitboxRef[world.bodies[component.collide_index].index]
                             component.collide_index = -1;
+                            const opponent = system[entity_id];
+                            if (opponent.components['type'].name === 'player'){
+                                const opponent_vector = new THREE.Vector3(component.vel_x, component.vel_y, component.vel_z).normalize();
+                                if (sync){
+                                    room!.send({
+                                        type: 'broadcast',
+                                        event: 'k',
+                                        payload: {
+                                            id: entity_id,
+                                            x: opponent_vector.x,
+                                            y: opponent_vector.y,
+                                            z: opponent_vector.z
+                                        }
+                                    })
+                                }
+                                const opponent_transform = opponent.components['transform'];
+                                opponent_transform.time_rotate = 0;
+                                opponent_transform.x += opponent_vector.x * 2;
+                                opponent_transform.y += opponent_vector.y * 2;
+                                opponent_transform.z += opponent_vector.z * 2;
+                            }
                         }
                     }
 
                     hitbox.velocity.set(component.vel_x, component.vel_y, component.vel_z);
+                    if (hitbox.position.y < -1){
+                        hitbox.position.set(0, 0.5, 0);
+                    }
                     component.vel_x *= 0.8;
                     component.vel_y *= 0.8;
                     component.vel_z *= 0.8;
@@ -205,6 +240,15 @@ export function updateGame(scene: THREE.Scene, world: CANNON.World, renderer: TH
                     camera.position.x = transform.x + physic.vel_cam_x;
                     camera.position.y = transform.y + physic.vel_cam_y + 0.4;
                     camera.position.z = transform.z + physic.vel_cam_z + 0.6;
+                    break;
+                }
+                case 'camera2': {
+                    const transform = entity.components['transform'];
+                    const physic = entity.components['physic'];
+                    camera.lookAt(new THREE.Vector3(transform.x, transform.y, transform.z));
+                    camera.position.x = transform.x + physic.vel_cam_x;
+                    camera.position.y = transform.y + 1.2 + physic.vel_cam_y;
+                    camera.position.z = transform.z + 0.6 + physic.vel_cam_z;
                     break;
                 }
                 case 'text': {

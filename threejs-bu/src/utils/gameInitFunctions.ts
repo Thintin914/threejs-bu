@@ -37,8 +37,8 @@ export function createEntity(id: string) {
 export function insertComponent(entity: Entity, component: Component) {
     entity.components[component.id] = component;
 }
-export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel) {
-    await initializeEntity(entity, scene, world, ui, setCaches, caches, room);
+export async function insertEntityToSystem(entity: Entity, system: Record<string, Entity>, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, hitboxRef: Record<number, string>, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel) {
+    await initializeEntity(entity, scene, world, ui, hitboxRef, setCaches, caches, room);
     system[entity.id] = entity;
 }
 export function lerp(start: number, end: number, t: number) {

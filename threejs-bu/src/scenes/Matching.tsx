@@ -29,7 +29,7 @@ export function Matching() {
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const { camera, scene, system, renderer, world, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+    const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     const room = useRef<RealtimeChannel | null>(null);
     useEffect(() => {
@@ -64,7 +64,7 @@ export function Matching() {
             height: 0.1,
             depth: 3.2
         });
-        insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
+        insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])
@@ -78,7 +78,7 @@ export function Matching() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, keyPressed, camera, screenSize, room.current!))
+            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize, room.current!))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     useEffect(() => {
@@ -164,6 +164,7 @@ export function Matching() {
             .on('presence', { event: 'join' }, async ({ key, newPresences }) => {
                 stop(true);
                 let player = createEntity(key);
+                insertComponent(player, {id: 'type', name: 'player'});
                 insertComponent(player, { id: 'transform', y: 0.5 });
                 insertComponent(player, {
                     id: 'model',
@@ -173,9 +174,9 @@ export function Matching() {
                 })
                 insertComponent(player, {
                     id: 'hitbox',
-                    width: 0.1,
-                    height: 0.1,
-                    depth: 0.1
+                    width: 0.25,
+                    height: 0.3,
+                    depth: 0.25
                 });
                 insertComponent(player, {
                     id: 'text',
@@ -190,7 +191,7 @@ export function Matching() {
                     insertComponent(player, { id: 'camera' });
                     insertComponent(player, { id: 'sync' });
                 }
-                await insertEntityToSystem(player, system, scene, world, ui.current!, setCaches, caches);
+                await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
                 stop(false);
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
@@ -238,6 +239,32 @@ export function Matching() {
                     if (!entity)
                         return;
                     entity.components['transform'].time_rotate = 0;
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'k' },
+                (data) => {
+                    let entity_id = data.payload.id;
+                    if (account.user_id !== entity_id)
+                        return;
+                    let entity = system[entity_id];
+                    if (!entity)
+                        return;
+                    const transform = entity.components['transform'];
+                    if (!transform)
+                        return;
+                    let new_position = {
+                        x: data.payload.x * 2,
+                        y: data.payload.y * 2,
+                        z: data.payload.z * 2
+                    }
+                    let hitbox = system[entity_id].gameObject.hitbox as CANNON.Body;
+                    hitbox.position.set(hitbox.position.x + new_position.x, hitbox.position.y + new_position.y, hitbox.position.z + new_position.z);
+                    transform.time_rotate = 0;
+                    transform.x += new_position.x;
+                    transform.y += new_position.y;
+                    transform.z += new_position.z;
                 }
             )
             .on(

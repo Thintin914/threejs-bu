@@ -24,7 +24,7 @@ export function Lobby() {
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const { camera, scene, system, renderer, world, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+    const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     useEffect(() => {
         if (container.current && ui.current)
@@ -60,9 +60,10 @@ export function Lobby() {
                 height: 0.1,
                 depth: 10
             });
-            await insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
+            await insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
             let player = createEntity('player');
+            insertComponent(player, {id: 'type', name: 'player'});
             insertComponent(player, { id: 'transform', y: 0.5 });
             insertComponent(player, {
                 id: 'model',
@@ -72,9 +73,9 @@ export function Lobby() {
             })
             insertComponent(player, {
                 id: 'hitbox',
-                width: 0.1,
-                height: 0.1,
-                depth: 0.1
+                width: 0.25,
+                height: 0.3,
+                depth: 0.25
             });
             insertComponent(player, {
                 id: 'text',
@@ -86,7 +87,7 @@ export function Lobby() {
             insertComponent(player, { id: 'physic', static: true });
             insertComponent(player, { id: 'controller' });
             insertComponent(player, { id: 'camera' });
-            await insertEntityToSystem(player, system, scene, world, ui.current!, setCaches, caches);
+            await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
             let lobby = createEntity('lobby');
             insertComponent(lobby, {
@@ -109,7 +110,7 @@ export function Lobby() {
                 color: '#ffffff',
                 onClick: () => setOpenRoomMenu(openRoomMenu => !openRoomMenu)
             })
-            await insertEntityToSystem(lobby, system, scene, world, ui.current!, setCaches, caches);
+            await insertEntityToSystem(lobby, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
             setFading(false, '');
         };
@@ -125,7 +126,7 @@ export function Lobby() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, keyPressed, camera, screenSize))
+            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     const [menuType, setMenuType] = useState<string>('all')

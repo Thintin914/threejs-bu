@@ -17,7 +17,7 @@ export function TemplateScene() {
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const { camera, scene, system, renderer, world, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+    const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     useEffect(() => {
         if (container.current && ui.current)
@@ -47,7 +47,7 @@ export function TemplateScene() {
             height: 0.1,
             depth: 10
         });
-        insertEntityToSystem(ground, system, scene, world, ui.current!, setCaches, caches);
+        insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
         setFading(false, '');
     }, [isReady])
@@ -61,7 +61,7 @@ export function TemplateScene() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, keyPressed, camera, screenSize))
+            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     return (

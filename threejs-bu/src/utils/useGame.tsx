@@ -9,6 +9,7 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
     const [screenSize, setScreenSize] = useState<{width: number, height: number}>({width: 0, height: 0});
 
     const system = useRef<Record<string, Entity>>({});
+    const hitboxRef = useRef<Record<number, string>>({});
     const camera = useRef<THREE.PerspectiveCamera | null>(null);
     const scene = useRef<THREE.Scene | null>(null);
     const renderer = useRef<THREE.WebGLRenderer | null>(null);
@@ -40,6 +41,8 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
             renderer.current = null;
         }
 
+        system.current = {};
+        hitboxRef.current = {};
         props.ui.innerHTML = '';
 
         setIsReady(false);
@@ -168,6 +171,7 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
     return ({
         screenSize: screenSize,
         system: system.current!,
+        hitboxRef: hitboxRef.current!,
         camera: camera.current!,
         scene: scene.current!,
         renderer: renderer.current!,

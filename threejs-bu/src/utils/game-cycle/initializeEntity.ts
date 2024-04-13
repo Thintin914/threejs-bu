@@ -10,7 +10,7 @@ const threeTone = new THREE.DataTexture(
     Uint8Array.from([0, 0, 0, 255, 128, 128, 128, 255, 255, 255, 255, 255]),3,1,THREE.RGBAFormat
 );
 
-export async function initializeEntity(entity: Entity, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel){
+export async function initializeEntity(entity: Entity, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, hitboxRef: Record<number, string>, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel){
     let transform = entity.components['transform'];
     let _scale = {x: 1, y: 1, z: 1};
     if (transform.scale){
@@ -21,9 +21,14 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
     for(let i = 0; i < components.length; i++){
         let component = components[i];
         switch (component.id){
+            case 'type': {
+                console.log(component)
+                break;
+            }
             case 'controller2': {
                 component.speed = 0;
                 component.vector = {x: 0, y: 0, z: 0};
+                component.cooldown = 0;
                 break;
             }
             case 'sync': {
@@ -100,7 +105,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
 
                 if (component.apply_force){
                     const onCollide = (e: any) =>{
-                        component.collide_index = e.target.index;
+                        component.collide_index = e.body.index;
                     }
                     hitbox.addEventListener('collide', onCollide);
                 }
@@ -128,6 +133,13 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 entity.gameObject.text = text;
             }
         }
+    }
+
+    if (!entity.components['type']){
+        entity.components['type'] = {
+            id: 'type',
+            name: ''
+        };
     }
 
     // Apply Transform To Model
@@ -167,6 +179,8 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
         const hitbox = entity.gameObject.hitbox as CANNON.Body;
         hitbox.position.set(transform.x, transform.y, transform.z);
         hitbox.quaternion.setFromEuler(transform.rotate_x, transform.rotate_y, transform.rotate_z);
+
+        hitboxRef[entity.gameObject.hitbox.index] = entity.id;
     }
 
 }
