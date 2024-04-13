@@ -41,18 +41,18 @@ export function Game() {
         insertComponent(ground, {
             id: 'transform',
             y: -0.5,
-            offset: {x: 0, y: 0, z: 0} 
+            offset: { x: 0, y: 0, z: 0 }
         });
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
-            file: 'GameMap/arena-3.glb',
-            scale: { x: 0.35, y: 0.35, z: 0.35 }
+            file: 'GameMap/arenaM.glb',
+            scale: { x: 7.0, y: 2.0, z: 3.5 }
         });
         insertComponent(ground, {
             id: 'hitbox',
             width: 10,
-            height: 0.1,
+            height: 0.7,
             depth: 10
         });
         insertEntityToSystem(ground, system, scene, world, ui.current!);
