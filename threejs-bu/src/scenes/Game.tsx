@@ -12,6 +12,7 @@ import { useAccountStore } from '../utils/zustand/useAccountStore';
 import * as CANNON from 'cannon-es'
 import { useCacheStore } from '../utils/zustand/useCacheStore';
 import { useGMStore } from '../utils/zustand/useGMStore';
+import { FaCrown } from "react-icons/fa6";
 
 export function Game() {
 
@@ -26,6 +27,8 @@ export function Game() {
     const ui = useRef<HTMLDivElement | null>(null);
 
     const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+
+    const [spotlightHolder, setSpotlightHolder] = useState<string>('');
 
     useEffect(() => {
         if (container.current && ui.current)
@@ -89,10 +92,33 @@ export function Game() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize, room.current!))
+            renderer.setAnimationLoop((time) => updateGame(time, scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize, room.current!))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     const [players, setPlayers] = useState<Record<string, any>>({});
+    const [scores, setScores] = useState<Record<string, number>>({});
+    useEffect(() =>{
+        if (!isReady)
+            return;
+
+        const interval_id = setInterval(() =>{
+            let score_dict = scores;
+            Object.keys(players).forEach((client_id) =>{
+                let entity = system[client_id];
+                if (entity){
+                    let score = entity.components['score'];
+                    if (score){
+                        score_dict[client_id] = Math.floor(score.score);
+                    }
+                }
+            });
+            setScores({...score_dict});
+        }, 1000);
+
+        return () =>{
+            clearInterval(interval_id)
+        }
+    }, [isReady, players])
     useEffect(() => {
         if (!isReady)
             return;
@@ -105,7 +131,7 @@ export function Game() {
 
         room.current = supabase.channel(`game_${id}`, {
             config: {
-                broadcast: { self: false },
+                broadcast: { self: true },
                 presence: {
                     key: account.user_id
                 },
@@ -116,11 +142,14 @@ export function Game() {
             .on('presence', { event: 'sync' }, async () => {
                 const new_state = room.current!.presenceState();
                 let dict: typeof players = {};
+                let score_dict: typeof scores = {};
                 let new_state_dict = Object.entries(new_state);
                 new_state_dict.forEach(([client, data]) => {
                     dict[client] = data[0];
-                    setPlayers(dict);
+                    score_dict[client] = 0;
                 })
+                setPlayers(dict);
+                setScores(score_dict);
             })
             .on('presence', { event: 'join' }, async ({ key, newPresences }) => {
                 stop(true);
@@ -146,17 +175,23 @@ export function Game() {
                     size: 12,
                     color: '#ffffff'
                 });
+                insertComponent(player, {id: 'score', score: 0, trigger: false});
                 if (key === account.user_id) {
+                    insertComponent(player, {id: 'collision', force: 4});
                     insertComponent(player, { id: 'physic', static: true, apply_force: true });
                     insertComponent(player, { id: 'controller2' });
                     insertComponent(player, { id: 'camera2' });
                     insertComponent(player, { id: 'sync' });
-                    if (newPresences[0].is_host){
-                        const spotlight = system['spotlight'];
-                        if (spotlight){
-                            spotlight.components['spotlight'].follow_id = key;
-                        }
-                    }
+                    insertComponent(player, { 
+                        id: 'death',
+                        onDeath: 'transfer_spotlight'
+                    });
+                }
+                if (newPresences[0].is_host){
+                    setSpotlightHolder(key);
+                    const spotlight = system['spotlight'];
+                    spotlight.components['spotlight'].follow_id = key;
+                    player.components['score'].trigger = true;
                 }
                 await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
                 stop(false);
@@ -210,6 +245,32 @@ export function Game() {
             )
             .on(
                 'broadcast',
+                { event: 'tr_spot' },
+                (data) => {
+                    let entity_id = data.payload.id;
+                    const entity = system[entity_id];
+                    if (entity){
+                        const score = entity.components['score'];
+                        if (score){
+                            score.trigger = true;
+                        }
+                    }
+                    const prev_entity = system[data.payload.prev];
+                    if (prev_entity){
+                        const prev_score = prev_entity.components['score'];
+                        if (prev_score){
+                            prev_score.trigger = false;
+                        }
+                    }
+
+                    setSpotlightHolder(entity_id);
+                    const spotlight = system['spotlight'];
+                    if (spotlight)
+                        spotlight.components['spotlight'].follow_id = entity_id;
+                }
+            )
+            .on(
+                'broadcast',
                 { event: 'k' },
                 (data) => {
                     let entity_id = data.payload.id;
@@ -232,6 +293,11 @@ export function Game() {
                     transform.x += new_position.x;
                     transform.y += new_position.y;
                     transform.z += new_position.z;
+
+                    const death = entity.components['death'];
+                    if (!death)
+                        return;
+                    death.killed_by = data.payload.from;
                 }
             )
             .subscribe(async (status) => {
@@ -245,7 +311,7 @@ export function Game() {
                 await room.current!.track({
                     username: account.username,
                     skin: _skin,
-                    is_host: host_id === account.user_id ? true : false
+                    is_host: host_id === account.user_id ? true : false,
                 });
             });
 
@@ -260,8 +326,25 @@ export function Game() {
     return (
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">
 
-            <div className='z-20 w-full h-full flex justify-start items-start pointer-events-none p-2'>
-
+            <div className='z-20 w-full h-full pointer-events-none p-2'>
+                <div className='flex flex-col justify-start items-start bg-zinc-800 w-fit bg-opacity-60 text-sm'>
+                {
+                    Object.entries(players).map(([user_id, player], index) =>{
+                        return (
+                            <div key={`player-${index}`} className=' p-2 text-white flex justify-center items-center gap-2'>
+                                {
+                                    spotlightHolder === user_id ?
+                                    <FaCrown /> : <></>
+                                }
+                                <p>{player.username}</p>
+                                <p className=' font-mono'>
+                                    {scores[user_id]}
+                                </p>
+                            </div>
+                        )
+                    })
+                }
+                </div>
             </div>
 
             <GameUILayer forwardedRef={ui} width={screenSize.width} height={screenSize.height} />

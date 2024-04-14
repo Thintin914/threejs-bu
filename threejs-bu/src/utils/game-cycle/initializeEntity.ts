@@ -21,6 +21,10 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
     for(let i = 0; i < components.length; i++){
         let component = components[i];
         switch (component.id){
+            case 'death': {
+                component.trigger = false;
+                break;
+            }
             case 'spotlight': {
                 const spotLight = new THREE.SpotLight( component.color, component.intensity, component.distance, 0.295);
                 spotLight.position.set( transform.x, transform.y, transform.z );
@@ -115,7 +119,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
 
                 if (component.apply_force){
                     const onCollide = (e: any) =>{
-                        component.collide_index = e.body.index;
+                        entity.components['collision'].collide_index = e.body.index;
                     }
                     hitbox.addEventListener('collide', onCollide);
                 }

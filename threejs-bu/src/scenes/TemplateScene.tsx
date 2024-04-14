@@ -61,7 +61,7 @@ export function TemplateScene() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize))
+            renderer.setAnimationLoop((time) => updateGame(time, scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     return (

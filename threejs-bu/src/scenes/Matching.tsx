@@ -78,7 +78,7 @@ export function Matching() {
         if (isStop)
             renderer.setAnimationLoop(null);
         else
-            renderer.setAnimationLoop(() => updateGame(scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize, room.current!))
+            renderer.setAnimationLoop((time) => updateGame(time, scene, world, renderer, system, hitboxRef, keyPressed, camera, screenSize, room.current!))
     }, [isReady, scene, world, renderer, system, keyPressed, camera, screenSize, isStop])
 
     useEffect(() => {
