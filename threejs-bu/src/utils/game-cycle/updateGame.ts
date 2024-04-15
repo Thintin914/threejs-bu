@@ -209,22 +209,22 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                             directionVector.set(0, 0, 1);
                             directionVector.applyMatrix4(rotationMatrix);
                             component.vector = directionVector;
-                            component.speed = 0.05;
-                            component.cooldown = 10;
+                            component.speed = 12 * deltatime;
+                            component.cooldown = 4 * deltatime;
                             component.clockwise = !component.clockwise;
                         }
                         physic.vel_cam_x += component.vector.x * 0.05;
                         physic.vel_cam_y += component.vector.y * 0.05;
 
-                        if (component.speed > 2){
-                            component.cooldown = 10;
+                        if (component.speed > 4){
+                            component.cooldown = 24 * deltatime;
                         }
 
                         if (component.cooldown > 0){
-                            component.cooldown -= 1;
-                            component.speed *= 95 * deltatime;
+                            component.cooldown -= deltatime;
+                            component.speed *= 0.8;
                         } else {
-                            component.speed *= 145 * deltatime;
+                            component.speed += 36 * deltatime;
                         }
 
                         physic.vel_x = component.vector.x * component.speed;
@@ -291,9 +291,9 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                             death.trigger = true;
                         }
                     }
-                    component.vel_x *= 95 * deltatime;
-                    component.vel_y *= 95 * deltatime;
-                    component.vel_z *= 95 * deltatime;
+                    component.vel_x *= 0.8;
+                    component.vel_y *= 0.8;
+                    component.vel_z *= 0.8;
                     component.vel_cam_x *= 0.95;
                     component.vel_cam_y *= 0.95;
                     component.vel_cam_z *= 0.95;
