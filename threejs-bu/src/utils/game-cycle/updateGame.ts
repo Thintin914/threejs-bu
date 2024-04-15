@@ -27,7 +27,8 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                                             event: 'tr_spot',
                                             payload: {
                                                 id: component.killed_by,
-                                                prev: entity.id
+                                                prev: entity.id,
+                                                score: score.score
                                             }
                                         })
                                     }

@@ -13,6 +13,7 @@ import * as CANNON from 'cannon-es'
 import { useCacheStore } from '../utils/zustand/useCacheStore';
 import { useGMStore } from '../utils/zustand/useGMStore';
 import { FaCrown } from "react-icons/fa6";
+import { LuAlarmClock } from "react-icons/lu";
 
 export function Game() {
 
@@ -21,7 +22,7 @@ export function Game() {
     const { account, skin } = useAccountStore();
     const {caches, setCaches} = useCacheStore();
 
-    const {host_id} = useGMStore();
+    const {host_id, current_players} = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -29,7 +30,8 @@ export function Game() {
     const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     const [spotlightHolder, setSpotlightHolder] = useState<string>('');
-
+    const [currentDate, setCurrentDate] = useState<{start_date: number, elapsed_date: number}>({start_date: 0, elapsed_date: 0});
+    const [countdown, setCountdown] = useState<number>(60);
     useEffect(() => {
         if (container.current && ui.current)
             init(true);
@@ -102,6 +104,17 @@ export function Game() {
             return;
 
         const interval_id = setInterval(() =>{
+            setCountdown((prev) => {
+                if (prev <= 0){
+                    if (host_id === account.user_id){
+                        console.log('end');
+                    }
+                    clearInterval(interval_id)
+                    return prev;
+                } else {
+                    return prev - 1;
+                }
+            });
             let score_dict = scores;
             Object.keys(players).forEach((client_id) =>{
                 let entity = system[client_id];
@@ -119,6 +132,13 @@ export function Game() {
             clearInterval(interval_id)
         }
     }, [isReady, players])
+    useEffect(() =>{
+        if (currentDate.start_date === 0 || currentDate.elapsed_date === 0)
+            return;
+        const milliseconds = currentDate.elapsed_date - currentDate.start_date;
+        setCountdown((prev) => prev - Math.floor(milliseconds / 1000));
+    }, [currentDate])
+    const joinCount = useRef<number>(0);
     useEffect(() => {
         if (!isReady)
             return;
@@ -138,6 +158,7 @@ export function Game() {
             },
         });
 
+        stop(true);
         room.current
             .on('presence', { event: 'sync' }, async () => {
                 const new_state = room.current!.presenceState();
@@ -152,7 +173,7 @@ export function Game() {
                 setScores(score_dict);
             })
             .on('presence', { event: 'join' }, async ({ key, newPresences }) => {
-                stop(true);
+                joinCount.current++;
                 let player = createEntity(key);
                 insertComponent(player, {id: 'type', name: 'player'});
                 insertComponent(player, { id: 'transform', y: 0.5 });
@@ -194,9 +215,24 @@ export function Game() {
                     player.components['score'].trigger = true;
                 }
                 await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
-                stop(false);
+
+                if (joinCount.current === current_players){
+                    stop(false);
+                    if (host_id === account.user_id){
+                        let current_date = Date.now();
+                        setCurrentDate({start_date: current_date, elapsed_date: current_date});
+                        room.current!.send({
+                            type: 'broadcast',
+                            event: 'start',
+                            payload: {
+                                time: current_date
+                            }
+                        })
+                    }
+                }
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+                joinCount.current--;
                 let entity = system[key];
                 if (!entity)
                     return;
@@ -207,6 +243,13 @@ export function Game() {
                 }
                 delete system[key];
             })
+            .on(
+                'broadcast',
+                { event: 'start' },
+                (data) => {
+                    setCurrentDate({start_date: data.payload.time, elapsed_date: Date.now()});
+                }
+            )
             .on(
                 'broadcast',
                 { event: 't' },
@@ -260,6 +303,7 @@ export function Game() {
                         const prev_score = prev_entity.components['score'];
                         if (prev_score){
                             prev_score.trigger = false;
+                            prev_score.score = data.payload.score;
                         }
                     }
 
@@ -326,7 +370,7 @@ export function Game() {
     return (
         <div className=" relative w-full h-full bg-[#84a6c9] flex justify-center items-center">
 
-            <div className='z-20 w-full h-full pointer-events-none p-2'>
+            <div className='z-20 w-full h-full pointer-events-none p-2 flex justify-between items-start'>
                 <div className='flex flex-col justify-start items-start bg-zinc-800 w-fit bg-opacity-60 text-sm'>
                 {
                     Object.entries(players).map(([user_id, player], index) =>{
@@ -344,6 +388,10 @@ export function Game() {
                         )
                     })
                 }
+                </div>
+                <div className=' w-fit p-2 text-white text-3xl font-mono inline-flex justify-center items-center gap-2'>
+                    <LuAlarmClock className=' text-2xl' />
+                    <p>{countdown}</p>
                 </div>
             </div>
 
