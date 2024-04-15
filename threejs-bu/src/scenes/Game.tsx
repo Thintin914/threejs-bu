@@ -107,7 +107,15 @@ export function Game() {
             setCountdown((prev) => {
                 if (prev <= 0){
                     if (host_id === account.user_id){
-                        console.log('end');
+                        room.current!.send({
+                            type: 'broadcast',
+                            event: 'end',
+                        });
+                        if (room.current){
+                            room.current.untrack();
+                            room.current.unsubscribe();
+                        }
+                        setFading(true, `/summary/${id}`);
                     }
                     clearInterval(interval_id)
                     return prev;

@@ -4,6 +4,7 @@ import { Cover } from "./Cover";
 import { Lobby } from './scenes/Lobby';
 import { Matching } from './scenes/Matching';
 import { Game } from './scenes/Game';
+import { Summary } from './scenes/Summary';
 
 export function App(){
 
@@ -19,6 +20,7 @@ export function App(){
                 <Route path='/lobby' element={<Lobby />} />
                 <Route path='/matching/:id' element={<Matching />} />
                 <Route path='/game/:id' element={<Game />} />
+                <Route path='/summary/:id' element={<Summary />} />
             </Routes>
         <Cover />
     </div>
