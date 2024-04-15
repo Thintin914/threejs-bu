@@ -154,8 +154,8 @@ export function Matching() {
                 let new_state_dict = Object.entries(new_state);
                 new_state_dict.forEach(([client, data]) => {
                     dict[client] = data[0];
-                    setPlayers(dict);
                 })
+                setPlayers(dict);
 
                 if (is_host) {
                     _set_current_players(new_state_dict.length);
@@ -239,32 +239,6 @@ export function Matching() {
                     if (!entity)
                         return;
                     entity.components['transform'].time_rotate = 0;
-                }
-            )
-            .on(
-                'broadcast',
-                { event: 'k' },
-                (data) => {
-                    let entity_id = data.payload.id;
-                    if (account.user_id !== entity_id)
-                        return;
-                    let entity = system[entity_id];
-                    if (!entity)
-                        return;
-                    const transform = entity.components['transform'];
-                    if (!transform)
-                        return;
-                    let new_position = {
-                        x: data.payload.x * 4,
-                        y: data.payload.y * 4,
-                        z: data.payload.z * 4
-                    }
-                    let hitbox = system[entity_id].gameObject.hitbox as CANNON.Body;
-                    hitbox.position.set(hitbox.position.x + new_position.x, hitbox.position.y + new_position.y, hitbox.position.z + new_position.z);
-                    transform.time_rotate = 0;
-                    transform.x += new_position.x;
-                    transform.y += new_position.y;
-                    transform.z += new_position.z;
                 }
             )
             .on(

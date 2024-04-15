@@ -22,7 +22,7 @@ export function Game() {
     const { account, skin } = useAccountStore();
     const {caches, setCaches} = useCacheStore();
 
-    const {host_id, current_players} = useGMStore();
+    const {host_id, current_players, setScore} = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -107,6 +107,9 @@ export function Game() {
             setCountdown((prev) => {
                 if (prev <= 0){
                     if (host_id === account.user_id){
+                        stop(true);
+                        exit();
+                        setScore(scores[account.user_id]);
                         room.current!.send({
                             type: 'broadcast',
                             event: 'end',
@@ -350,6 +353,20 @@ export function Game() {
                     if (!death)
                         return;
                     death.killed_by = data.payload.from;
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'end' },
+                () => {
+                    stop(true);
+                    exit();
+                    setScore(scores[account.user_id]);
+                    if (room.current){
+                        room.current.untrack();
+                        room.current.unsubscribe();
+                    }
+                    setFading(true, `/summary/${id}`);
                 }
             )
             .subscribe(async (status) => {

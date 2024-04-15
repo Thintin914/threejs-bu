@@ -9,6 +9,8 @@ interface GMState {
     host_id: string;
     setGMState: (allowed_players: number, current_players: number, room_id: string, password: string, room_name: string, host_id: string) => void;
     clearGMState: () => void;
+    score: number;
+    setScore: (score: number) => void;
 }
 
 export const useGMStore = create<GMState>()((set) => ({
@@ -18,6 +20,7 @@ export const useGMStore = create<GMState>()((set) => ({
     password: '',
     room_name: '',
     host_id: '',
+    score: 0,
     setGMState: (allowed_players, current_players, room_id, password, room_name, host_id) =>{
         set(() => ({
             allowed_players: allowed_players,
@@ -37,5 +40,10 @@ export const useGMStore = create<GMState>()((set) => ({
             room_name: '',
             host_id: ''
         }))
-    }
+    },
+    setScore(_score) {
+        set(() => ({
+            score: _score
+        }))
+    },
 }))
