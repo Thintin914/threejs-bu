@@ -20,9 +20,9 @@ export function Game() {
     const { id } = useParams();
     const { fade, setFading } = useTransitionStore();
     const { account, skin } = useAccountStore();
-    const {caches, setCaches} = useCacheStore();
+    const { caches, setCaches } = useCacheStore();
 
-    const {host_id, current_players, setScore} = useGMStore();
+    const { host_id, current_players, setScore } = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -30,7 +30,7 @@ export function Game() {
     const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     const [spotlightHolder, setSpotlightHolder] = useState<string>('');
-    const [currentDate, setCurrentDate] = useState<{start_date: number, elapsed_date: number}>({start_date: 0, elapsed_date: 0});
+    const [currentDate, setCurrentDate] = useState<{ start_date: number, elapsed_date: number }>({ start_date: 0, elapsed_date: 0 });
     const [countdown, setCountdown] = useState<number>(120);
     useEffect(() => {
         if (container.current && ui.current)
@@ -55,7 +55,7 @@ export function Game() {
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
-            file: 'WaitingRoom/siege_camp_scene.glb',
+            file: 'GameMap/camp.glb',
             scale: { x: 2.60, y: 2.60, z: 2.60 }
         });
         insertComponent(ground, {
@@ -67,11 +67,11 @@ export function Game() {
         insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
         let spotlight = createEntity('spotlight');
-        insertComponent(spotlight, {id: 'type', name: 'spotlight'});
+        insertComponent(spotlight, { id: 'type', name: 'spotlight' });
         insertComponent(spotlight, {
             id: 'transform',
             x: 0, y: 0, z: 0,
-            offset: {x: 0, y: 0.45, z: 0}
+            offset: { x: 0, y: 0.45, z: 0 }
         });
         insertComponent(spotlight, {
             id: 'spotlight',
@@ -99,19 +99,19 @@ export function Game() {
 
     const [players, setPlayers] = useState<Record<string, any>>({});
     const [scores, setScores] = useState<Record<string, number>>({});
-    useEffect(() =>{
+    useEffect(() => {
         if (!isReady)
             return;
 
-        const interval_id = setInterval(() =>{
+        const interval_id = setInterval(() => {
             setCountdown((prev) => {
-                if (prev <= 0){
-                    if (host_id === account.user_id){
+                if (prev <= 0) {
+                    if (host_id === account.user_id) {
                         room.current!.send({
                             type: 'broadcast',
                             event: 'end',
                         });
-                        if (room.current){
+                        if (room.current) {
                             room.current.untrack();
                             room.current.unsubscribe();
                         }
@@ -124,31 +124,31 @@ export function Game() {
                 }
             });
             let score_dict = scores;
-            Object.keys(players).forEach((client_id) =>{
+            Object.keys(players).forEach((client_id) => {
                 let entity = system[client_id];
-                if (entity){
+                if (entity) {
                     let score = entity.components['score'];
-                    if (score){
+                    if (score) {
                         score_dict[client_id] = Math.floor(score.score);
                     }
                 }
             });
-            setScores({...score_dict});
+            setScores({ ...score_dict });
         }, 1000);
 
-        return () =>{
+        return () => {
             clearInterval(interval_id)
         }
     }, [isReady, players])
-    useEffect(() =>{
+    useEffect(() => {
         if (currentDate.start_date === 0 || currentDate.elapsed_date === 0)
             return;
         const milliseconds = currentDate.elapsed_date - currentDate.start_date;
         setCountdown((prev) => prev - Math.floor(milliseconds / 1000));
     }, [currentDate])
     const [hasEnd, setHasEnd] = useState<boolean>(false);
-    useEffect(() =>{
-        if (hasEnd){
+    useEffect(() => {
+        if (hasEnd) {
             stop(true);
             exit();
             setScore(scores[account.user_id]);
@@ -192,7 +192,7 @@ export function Game() {
             .on('presence', { event: 'join' }, async ({ key, newPresences }) => {
                 joinCount.current++;
                 let player = createEntity(key);
-                insertComponent(player, {id: 'type', name: 'player'});
+                insertComponent(player, { id: 'type', name: 'player' });
                 insertComponent(player, { id: 'transform', y: 0.5 });
                 insertComponent(player, {
                     id: 'model',
@@ -213,19 +213,19 @@ export function Game() {
                     size: 12,
                     color: '#ffffff'
                 });
-                insertComponent(player, {id: 'score', score: 0, trigger: false});
+                insertComponent(player, { id: 'score', score: 0, trigger: false });
                 if (key === account.user_id) {
-                    insertComponent(player, {id: 'collision', force: 4});
+                    insertComponent(player, { id: 'collision', force: 4 });
                     insertComponent(player, { id: 'physic', static: true, apply_force: true });
                     insertComponent(player, { id: 'controller2' });
                     insertComponent(player, { id: 'camera2' });
                     insertComponent(player, { id: 'sync' });
-                    insertComponent(player, { 
+                    insertComponent(player, {
                         id: 'death',
                         onDeath: 'transfer_spotlight'
                     });
                 }
-                if (newPresences[0].is_host){
+                if (newPresences[0].is_host) {
                     setSpotlightHolder(key);
                     const spotlight = system['spotlight'];
                     spotlight.components['spotlight'].follow_id = key;
@@ -233,11 +233,11 @@ export function Game() {
                 }
                 await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
-                if (joinCount.current === current_players){
+                if (joinCount.current === current_players) {
                     stop(false);
-                    if (host_id === account.user_id){
+                    if (host_id === account.user_id) {
                         let current_date = Date.now();
-                        setCurrentDate({start_date: current_date, elapsed_date: current_date});
+                        setCurrentDate({ start_date: current_date, elapsed_date: current_date });
                         room.current!.send({
                             type: 'broadcast',
                             event: 'start',
@@ -264,7 +264,7 @@ export function Game() {
                 'broadcast',
                 { event: 'start' },
                 (data) => {
-                    setCurrentDate({start_date: data.payload.time, elapsed_date: Date.now()});
+                    setCurrentDate({ start_date: data.payload.time, elapsed_date: Date.now() });
                 }
             )
             .on(
@@ -309,16 +309,16 @@ export function Game() {
                 (data) => {
                     let entity_id = data.payload.id;
                     const entity = system[entity_id];
-                    if (entity){
+                    if (entity) {
                         const score = entity.components['score'];
-                        if (score){
+                        if (score) {
                             score.trigger = true;
                         }
                     }
                     const prev_entity = system[data.payload.prev];
-                    if (prev_entity){
+                    if (prev_entity) {
                         const prev_score = prev_entity.components['score'];
-                        if (prev_score){
+                        if (prev_score) {
                             prev_score.trigger = false;
                             prev_score.score = data.payload.score;
                         }
@@ -365,7 +365,7 @@ export function Game() {
                 'broadcast',
                 { event: 'end' },
                 () => {
-                    if (room.current){
+                    if (room.current) {
                         room.current.untrack();
                         room.current.unsubscribe();
                     }
@@ -400,22 +400,22 @@ export function Game() {
 
             <div className='z-20 w-full h-full pointer-events-none p-2 flex justify-between items-start'>
                 <div className='flex flex-col justify-start items-start bg-zinc-800 w-fit bg-opacity-60 text-sm'>
-                {
-                    Object.entries(players).map(([user_id, player], index) =>{
-                        return (
-                            <div key={`player-${index}`} className=' p-2 text-white flex justify-center items-center gap-2'>
-                                {
-                                    spotlightHolder === user_id ?
-                                    <FaCrown /> : <></>
-                                }
-                                <p>{player.username}</p>
-                                <p className=' font-mono'>
-                                    {scores[user_id]}
-                                </p>
-                            </div>
-                        )
-                    })
-                }
+                    {
+                        Object.entries(players).map(([user_id, player], index) => {
+                            return (
+                                <div key={`player-${index}`} className=' p-2 text-white flex justify-center items-center gap-2'>
+                                    {
+                                        spotlightHolder === user_id ?
+                                            <FaCrown /> : <></>
+                                    }
+                                    <p>{player.username}</p>
+                                    <p className=' font-mono'>
+                                        {scores[user_id]}
+                                    </p>
+                                </div>
+                            )
+                        })
+                    }
                 </div>
                 <div className=' w-fit p-2 text-white text-3xl font-mono inline-flex justify-center items-center gap-2'>
                     <LuAlarmClock className=' text-2xl' />
