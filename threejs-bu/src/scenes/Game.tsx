@@ -31,7 +31,7 @@ export function Game() {
 
     const [spotlightHolder, setSpotlightHolder] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<{start_date: number, elapsed_date: number}>({start_date: 0, elapsed_date: 0});
-    const [countdown, setCountdown] = useState<number>(60);
+    const [countdown, setCountdown] = useState<number>(20);
     useEffect(() => {
         if (container.current && ui.current)
             init(true);
@@ -107,9 +107,6 @@ export function Game() {
             setCountdown((prev) => {
                 if (prev <= 0){
                     if (host_id === account.user_id){
-                        stop(true);
-                        exit();
-                        setScore(scores[account.user_id]);
                         room.current!.send({
                             type: 'broadcast',
                             event: 'end',
@@ -118,7 +115,7 @@ export function Game() {
                             room.current.untrack();
                             room.current.unsubscribe();
                         }
-                        setFading(true, `/summary/${id}`);
+                        setHasEnd(true);
                     }
                     clearInterval(interval_id)
                     return prev;
@@ -149,6 +146,15 @@ export function Game() {
         const milliseconds = currentDate.elapsed_date - currentDate.start_date;
         setCountdown((prev) => prev - Math.floor(milliseconds / 1000));
     }, [currentDate])
+    const [hasEnd, setHasEnd] = useState<boolean>(false);
+    useEffect(() =>{
+        if (hasEnd){
+            stop(true);
+            exit();
+            setScore(scores[account.user_id]);
+            setFading(true, `/summary/${id}`);
+        }
+    }, [hasEnd])
     const joinCount = useRef<number>(0);
     useEffect(() => {
         if (!isReady)
@@ -359,14 +365,11 @@ export function Game() {
                 'broadcast',
                 { event: 'end' },
                 () => {
-                    stop(true);
-                    exit();
-                    setScore(scores[account.user_id]);
                     if (room.current){
                         room.current.untrack();
                         room.current.unsubscribe();
                     }
-                    setFading(true, `/summary/${id}`);
+                    setHasEnd(true);
                 }
             )
             .subscribe(async (status) => {

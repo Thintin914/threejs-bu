@@ -46,6 +46,7 @@ export function Summary(){
                 new_state_dict.forEach(([client, data]) => {
                     dict[client] = data[0];
                 })
+                console.log(dict)
                 setPlayers({...dict});
             })
             .subscribe(async (status) => {
