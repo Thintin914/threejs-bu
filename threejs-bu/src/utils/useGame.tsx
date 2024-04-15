@@ -14,6 +14,7 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
     const scene = useRef<THREE.Scene | null>(null);
     const renderer = useRef<THREE.WebGLRenderer | null>(null);
     const ambientLight = useRef<THREE.AmbientLight | null>(null);
+    const pointLight = useRef<THREE.PointLight | null>(null);
 
     const world = useRef<CANNON.World | null>(null);
 
@@ -70,8 +71,13 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
 
         scene.current = new THREE.Scene();
 
-        ambientLight.current = new THREE.AmbientLight( 0x404040, 50 ); // soft white light
+        ambientLight.current = new THREE.AmbientLight( 0x000D67, 5 );
         scene.current.add( ambientLight.current );
+
+        pointLight.current = new THREE.PointLight(0x76599E, 4, 10, 0);
+        pointLight.current.position.set(0, 1, 0);
+        pointLight.current.rotation.set(20, 0, 0);
+        scene.current.add(pointLight.current);
 
         renderer.current = new THREE.WebGLRenderer( { antialias: true } );
         renderer.current.setSize( window.innerWidth, window.innerHeight );
@@ -179,6 +185,8 @@ export function useGame(props: {container: HTMLDivElement, ui: HTMLDivElement}){
         keyPressed: keyPressed,
         isReady: isReady,
         isStop: stopGame,
+        ambientLight: ambientLight.current!,
+        pointLight: pointLight.current!,
         exit: Exit,
         init: setInit,
         stop: setStopGame

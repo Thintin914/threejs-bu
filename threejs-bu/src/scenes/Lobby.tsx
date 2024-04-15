@@ -24,7 +24,7 @@ export function Lobby() {
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+    const { pointLight, camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     useEffect(() => {
         if (container.current && ui.current)
@@ -43,6 +43,8 @@ export function Lobby() {
         if (!isReady)
             return;
         counted.current = true;
+
+    pointLight.color.set(0x8AD1EE);
 
         const f = async () => {
 

@@ -217,7 +217,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                         physic.vel_cam_y += component.vector.y * 0.05;
 
                         if (component.speed > 4){
-                            component.cooldown = 24 * deltatime;
+                            component.cooldown = 36 * deltatime;
                         }
 
                         if (component.cooldown > 0){

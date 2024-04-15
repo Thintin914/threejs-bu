@@ -29,7 +29,7 @@ export function Matching() {
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
 
-    const { camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
+    const { ambientLight, pointLight, camera, scene, system, renderer, world, hitboxRef, keyPressed, isReady, screenSize, isStop, exit, init, stop } = useGame({ container: container.current!, ui: ui.current! });
 
     const room = useRef<RealtimeChannel | null>(null);
     useEffect(() => {
@@ -45,6 +45,9 @@ export function Matching() {
         if (!isReady)
             return;
         counted.current = true;
+
+        ambientLight.color.set(0x5B0061);
+        pointLight.color.set(0xF9BFA3);
 
         let ground = createEntity('ground');
         insertComponent(ground, {

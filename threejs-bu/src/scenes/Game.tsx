@@ -76,6 +76,8 @@ export function Game() {
         insertComponent(spotlight, {
             id: 'spotlight',
             color: 0xFDD837,
+            beam_color1: 0xFEB68F,
+            beam_color2: 0xF9F4D9,
             intensity: 3,
             distance: 3.5
         });

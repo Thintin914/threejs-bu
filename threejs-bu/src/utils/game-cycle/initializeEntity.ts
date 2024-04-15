@@ -28,8 +28,41 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
             case 'spotlight': {
                 const spotLight = new THREE.SpotLight( component.color, component.intensity, component.distance, 0.295);
                 spotLight.position.set( transform.x, transform.y, transform.z );
-                entity.gameObject.model = spotLight;
 
+                const cone_material = new THREE.ShaderMaterial({
+                    uniforms: {
+                      color1: {
+                        value: new THREE.Color(component.beam_color1)
+                      },
+                      color2: {
+                        value: new THREE.Color(component.beam_color2)
+                      }
+                    },
+                    vertexShader: `
+                      varying vec2 vUv;
+                  
+                      void main() {
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+                      }
+                    `,
+                    fragmentShader: `
+                      uniform vec3 color1;
+                      uniform vec3 color2;
+                    
+                      varying vec2 vUv;
+                      
+                      void main() {
+                        
+                        gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);
+                      }
+                    `
+                  });
+
+                const cone = new THREE.Mesh( new THREE.CylinderGeometry(0.01, 0.1, 1, 16), cone_material );
+                cone.material.side = THREE.BackSide;
+                spotLight.attach(cone);
+                entity.gameObject.model = spotLight;
                 component.follow_id = component.follow_id ? component.follow_id : '';
                 break;
             }
@@ -59,6 +92,8 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 let model_array_buffer = await model_blob?.arrayBuffer();
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
+                model.castShadow = true;
+                model.receiveShadow = true;
 
                 _scale = component.scale;
                 entity.gameObject.model = model;
