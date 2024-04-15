@@ -31,7 +31,7 @@ export function Game() {
 
     const [spotlightHolder, setSpotlightHolder] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<{start_date: number, elapsed_date: number}>({start_date: 0, elapsed_date: 0});
-    const [countdown, setCountdown] = useState<number>(20);
+    const [countdown, setCountdown] = useState<number>(120);
     useEffect(() => {
         if (container.current && ui.current)
             init(true);
