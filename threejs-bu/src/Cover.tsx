@@ -95,7 +95,7 @@ export function Cover() {
       </div>
 
       <h1 className="md:text-7xl text-3xl lg:text-7xl font-bold text-center text-white relative z-20 select-none">
-        Untitled Game
+        COMP4025, 2023S2
       </h1>
       <div className="w-[40rem] h-40 relative">
         {/* Gradients */}
