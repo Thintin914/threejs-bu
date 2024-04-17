@@ -202,7 +202,7 @@ export function Lobby() {
     }
 
     const shopTypeRef = useRef<{type: string, price: number}>({type: 'I', price: 1.99});
-    const forceRef = useRef<number>(1);
+    const forceRef = useRef<number>(0.01);
     const createOrder = (data: any, actions: any) => {
         return actions.order.create({
             purchase_units: [
@@ -217,18 +217,18 @@ export function Lobby() {
     const onApprove = (data: any, actions: any) => {
         switch (shopTypeRef.current.type){
             case 'I': {
-                if (forceRef.current < 2)
-                    forceRef.current = 2;
+                if (forceRef.current < 0.1)
+                    forceRef.current = 0.1;
                 break;
             }
             case 'II': {
-                if (forceRef.current < 3)
-                    forceRef.current = 3;
+                if (forceRef.current < 0.4)
+                    forceRef.current = 0.4;
                 break;
             }
             case 'III': {
-                if (forceRef.current < 4)
-                    forceRef.current = 4;
+                if (forceRef.current < 1)
+                    forceRef.current = 1;
                 break;
             }
         }

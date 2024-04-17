@@ -233,6 +233,9 @@ export function Game() {
                     const spotlight = system['spotlight'];
                     spotlight.components['spotlight'].follow_id = key;
                     player.components['score'].trigger = true;
+                    if (key === account.user_id){
+                        player.components['controller2'].max_cooldown = 120;
+                    }
                 }
                 await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
@@ -317,6 +320,9 @@ export function Game() {
                         if (score) {
                             score.trigger = true;
                         }
+                        const controller2 = entity.components['controller2'];
+                        if (controller2)
+                            controller2.max_cooldown = 120;
                     }
                     const prev_entity = system[data.payload.prev];
                     if (prev_entity) {

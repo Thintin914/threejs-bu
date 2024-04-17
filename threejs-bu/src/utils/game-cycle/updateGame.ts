@@ -19,6 +19,8 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                                     const spotlight = system['spotlight'];
                                     const spotlight_spotlight = spotlight.components['spotlight'];
                                     if (spotlight_spotlight.follow_id === entity.id){
+                                        const controller2 = entity.components['controller2'];
+                                        controller2.max_cooldown = 36;
                                         spotlight_spotlight.follow_id = component.killed_by;
                                         const score = entity.components['score'];
                                         score.trigger = false;
@@ -217,7 +219,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                         physic.vel_cam_y += component.vector.y * 0.05;
 
                         if (component.speed > 4){
-                            component.cooldown = 36 * deltatime;
+                            component.cooldown = component.max_cooldown * deltatime;
                         }
 
                         if (component.cooldown > 0){

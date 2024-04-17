@@ -71,6 +71,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 component.vector = {x: 0, y: 0, z: 0};
                 component.cooldown = 0;
                 component.clockwise = true;
+                component.max_cooldown = component.max_cooldown ? component.max_cooldown : 36;
                 break;
             }
             case 'sync': {
