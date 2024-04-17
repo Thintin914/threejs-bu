@@ -178,7 +178,7 @@ export function Game() {
             },
         });
 
-        // stop(true);
+        stop(true);
         room.current
             .on('presence', { event: 'sync' }, async () => {
                 const new_state = room.current!.presenceState();
