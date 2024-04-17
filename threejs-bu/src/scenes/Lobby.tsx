@@ -12,6 +12,7 @@ import { supabase } from '..';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { useGMStore } from '../utils/zustand/useGMStore';
 import { useCacheStore } from '../utils/zustand/useCacheStore';
+import { PayPalButtons, PayPalScriptProvider, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 
 export function Lobby() {
 
@@ -19,7 +20,7 @@ export function Lobby() {
     const { setGMState } = useGMStore();
     const { setFading, setAudio } = useTransitionStore();
     const {caches, setCaches} = useCacheStore();
-
+    const {force, setForce} = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -32,6 +33,8 @@ export function Lobby() {
     }, [container.current, ui.current])
 
     const [openRoomMenu, setOpenRoomMenu] = useState<boolean>(false);
+    const [openPaypal, setOpenPaypal] = useState<boolean>(false);
+    const [shopType, setShopType] = useState<{type: string, price: number}>({type: 'I', price: 1.99});
 
     // add script here
     const counted = useRef<boolean>(false);
@@ -91,19 +94,40 @@ export function Lobby() {
             insertComponent(player, { id: 'camera' });
             await insertEntityToSystem(player, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
-            let lobby = createEntity('lobby');
-            insertComponent(lobby, {
+            let shop = createEntity('shop');
+            insertComponent(shop, {
                 id: 'transform',
-                x: 0, y: 0.45, z: -0.5
+                x: -1, y: 0, z: -0.6
             })
-            insertComponent(lobby, {
+            insertComponent(shop, {
                 id: 'box',
-                width: 0.3,
+                width: 0.1,
                 height: 0.1,
                 depth: 0.1,
                 color: 0x84a6c9
             });
-            insertComponent(lobby, { id: 'physic' });
+            insertComponent(shop, {
+                id: 'text',
+                text: 'Cash Shop',
+                y: 0.15,
+                size: 25,
+                color: '#ffffff',
+                onClick: () => setOpenPaypal(openPaypal => !openPaypal)
+            })
+            await insertEntityToSystem(shop, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
+
+            let lobby = createEntity('lobby');
+            insertComponent(lobby, {
+                id: 'transform',
+                x: 0, y: 0, z: -0.5
+            })
+            insertComponent(lobby, {
+                id: 'box',
+                width: 0.1,
+                height: 0.1,
+                depth: 0.1,
+                color: 0x84a6c9
+            });
             insertComponent(lobby, {
                 id: 'text',
                 text: 'Lobby',
@@ -134,6 +158,8 @@ export function Lobby() {
     const [menuType, setMenuType] = useState<string>('all')
     const [roomMenuScope, roomMenuAnimate] = useAnimate();
 
+    const [paypalMenuScope, paypalMenuAnimate] = useAnimate();
+
     const [roomName, setRoomName] = useState<string>('');
     const [roomPlayers, setRoomPlayers] = useState<any>(2);
     const [password, setPassword] = useState<string>('');
@@ -152,7 +178,7 @@ export function Lobby() {
     }
 
     useEffect(() => {
-
+        setForce(forceRef.current);
         if (openRoomMenu) {
             stop(true);
             OpenRoomMenuAnimation();
@@ -161,6 +187,63 @@ export function Lobby() {
             CloseRoomMenuAnimation();
         }
     }, [openRoomMenu])
+
+    async function OpenPaypalMenuAnimation() {
+        paypalMenuScope.current.style.display = 'flex';
+        paypalMenuScope.current.style.opacity = '0';
+        await paypalMenuAnimate(paypalMenuScope.current, { opacity: 1 });
+    }
+
+    async function ClosePaypalMenuAnimation() {
+        paypalMenuScope.current.style.display = 'flex';
+        paypalMenuScope.current.style.opacity = '1';
+        await paypalMenuAnimate(paypalMenuScope.current, { opacity: 0 });
+        paypalMenuScope.current.style.display = 'none';
+    }
+
+    const shopTypeRef = useRef<{type: string, price: number}>({type: 'I', price: 1.99});
+    const forceRef = useRef<number>(1);
+    const createOrder = (data: any, actions: any) => {
+        return actions.order.create({
+            purchase_units: [
+            {
+                amount: {
+                    value: shopTypeRef.current.price
+                },
+            },
+            ],
+        });
+    }
+    const onApprove = (data: any, actions: any) => {
+        switch (shopTypeRef.current.type){
+            case 'I': {
+                if (forceRef.current < 2)
+                    forceRef.current = 2;
+                break;
+            }
+            case 'II': {
+                if (forceRef.current < 3)
+                    forceRef.current = 3;
+                break;
+            }
+            case 'III': {
+                if (forceRef.current < 4)
+                    forceRef.current = 4;
+                break;
+            }
+        }
+        return actions.order.capture();
+    }
+
+    useEffect(() =>{
+        if (openPaypal){
+            stop(true);
+            OpenPaypalMenuAnimation();
+        }else { 
+            stop(false);
+            ClosePaypalMenuAnimation();
+        }
+    }, [openPaypal])
 
     const rooms = useRef<RealtimeChannel | null>(null);
     const [roomItems, setRoomItems] = useState<Record<string, { allowed_players: number, current_players: number, room_id: string, password: string, user_password: string, room_name: string, host_id: string }>>({});
@@ -385,6 +468,78 @@ export function Lobby() {
                                 </div>
                             </div>
                     }
+
+                </motion.div>
+            </div>
+
+            <div className=' z-20 w-full h-full absolute flex justify-center items-center select-none pointer-events-none'>
+                <motion.div ref={paypalMenuScope} className=' w-full h-full bg-[#273457] pointer-events-auto p-2 flex-col justify-start items-start gap-3'
+                    initial={{ opacity: 0 }}
+                    style={{
+                        display: 'none'
+                    }}
+                >
+                    <div className=' w-full flex justify-between items-center text-white font-semibold'>
+                        <div className='inline-flex justify-start items-center gap-2'>
+                            <div className=' p-1 pl-2 pr-2 rounded-sm cursor-pointer bg-opacity-50'
+                                style={{
+                                    background: shopType.type === 'I' ? '#d5d3b8' : '#8c96b0'
+                                }}
+                                onClick={() => {
+                                    shopTypeRef.current = {type: 'I', price: 1.99};
+                                    setShopType({
+                                        type: 'I',
+                                        price: 1.99
+                                    });
+                                }}
+                            >
+                                Power I
+                            </div>
+                            <div className=' p-1 pl-2 pr-2 rounded-sm cursor-pointer bg-opacity-50'
+                                style={{
+                                    background: shopType.type === 'II' ? '#d5d3b8' : '#8c96b0'
+                                }}
+                                onClick={() => {
+                                    shopTypeRef.current = {type: 'II', price: 2.99};
+                                    setShopType({
+                                        type: 'II',
+                                        price: 2.99
+                                    });
+                                }}
+                            >
+                                Power II
+                            </div>
+                            <div className=' p-1 pl-2 pr-2 rounded-sm cursor-pointer bg-opacity-50'
+                                style={{
+                                    background: shopType.type === 'III' ? '#d5d3b8' : '#8c96b0'
+                                }}
+                                onClick={() => {
+                                    shopTypeRef.current = {type: 'III', price: 3.99};
+                                    setShopType({
+                                        type: 'III',
+                                        price: 3.99
+                                    });
+                                }}
+                            >
+                                Power III
+                            </div>
+                        </div>
+                        <div className=' p-1 pl-2 pr-2 bg-[#8c96b0] rounded-sm cursor-pointer hover:bg-[#9da7bd] bg-opacity-50'
+                            onClick={() => {
+                                setOpenPaypal(false);
+                            }}
+                        >
+                            Close
+                        </div>
+                    </div>
+
+                    <div className=' text-white w-full h-full flex justify-center items-center flex-col gap-2'>
+                        <p className='text-2xl font-semibold'>Price</p>
+                        <p className=' font-mono text-2xl font-semibold mb-5'>{`$${shopType.price} USD`}</p>
+                        <PayPalScriptProvider options={{ clientId: "test", currency: 'USD' }}>
+                            <PayPalButtons style={{ layout: "horizontal" }} createOrder={createOrder} onApprove={onApprove} />
+                        </PayPalScriptProvider>
+                    </div>
 
                 </motion.div>
             </div>

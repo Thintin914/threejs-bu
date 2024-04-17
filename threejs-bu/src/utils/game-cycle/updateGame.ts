@@ -321,7 +321,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     break;
                 }
                 case 'text': {
-                    const model = entity.gameObject.model;
+                    const model = entity.gameObject.model
                     let pos = worldToScreenPosition(screenSize.width, screenSize.height, model.position.x + component.x, model.position.y + component.y, model.position.z + component.z, camera);
                     const text = entity.gameObject.text as HTMLParagraphElement;
                     text.style.left = `${pos.x + component.screen_x}px`;

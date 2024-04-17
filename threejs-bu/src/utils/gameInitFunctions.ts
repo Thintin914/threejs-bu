@@ -51,6 +51,6 @@ export function worldToScreenPosition(width: number, height: number, x: number, 
     let pos = new THREE.Vector3(x, y, z);
     pos.project(camera);
     pos.x = (pos.x * widthHalf) + widthHalf;
-    pos.y = - (pos.y * heightHalf) + heightHalf;
+    pos.y = -(pos.y * heightHalf) + heightHalf;
     return pos;
 }

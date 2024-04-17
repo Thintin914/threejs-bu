@@ -22,7 +22,7 @@ export function Game() {
     const { account, skin } = useAccountStore();
     const { caches, setCaches } = useCacheStore();
 
-    const { host_id, current_players, setScore } = useGMStore();
+    const { host_id, current_players, setScore, force } = useGMStore();
 
     const container = useRef<HTMLDivElement | null>(null);
     const ui = useRef<HTMLDivElement | null>(null);
@@ -218,7 +218,7 @@ export function Game() {
                 });
                 insertComponent(player, { id: 'score', score: 0, trigger: false });
                 if (key === account.user_id) {
-                    insertComponent(player, { id: 'collision', force: 4 });
+                    insertComponent(player, { id: 'collision', force: newPresences[0].force });
                     insertComponent(player, { id: 'physic', static: true, apply_force: true });
                     insertComponent(player, { id: 'controller2' });
                     insertComponent(player, { id: 'camera2' });
@@ -387,6 +387,7 @@ export function Game() {
                     username: account.username,
                     skin: _skin,
                     is_host: host_id === account.user_id ? true : false,
+                    force: force
                 });
             });
 

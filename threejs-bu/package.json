@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@paypal/react-paypal-js": "^8.2.0",
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/supabase-js": "^2.39.8",
     "@testing-library/jest-dom": "^5.17.0",
