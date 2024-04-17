@@ -53,7 +53,7 @@ export function Matching() {
         insertComponent(ground, {
             id: 'transform',
             y: -0.5,
-            offset: { x: 0, y: 0.1, z: -0.25 }
+            offset: { x: 0, y: 0.2, z: -0.25 }
         });
         insertComponent(ground, {
             id: 'model',

@@ -50,7 +50,7 @@ export function Game() {
         insertComponent(ground, {
             id: 'transform',
             y: -0.5,
-            offset: { x: 0, y: 0.1, z: -0.25 }
+            offset: { x: 0, y: 0.2, z: -0.25 }
         });
         insertComponent(ground, {
             id: 'model',
@@ -104,7 +104,8 @@ export function Game() {
     useEffect(() => {
         if (!isReady)
             return;
-
+        if (isStop)
+            return;
         const interval_id = setInterval(() => {
             setCountdown((prev) => {
                 if (prev <= 0) {
@@ -141,7 +142,7 @@ export function Game() {
         return () => {
             clearInterval(interval_id)
         }
-    }, [isReady, players])
+    }, [isReady, players, isStop])
     useEffect(() => {
         if (currentDate.start_date === 0 || currentDate.elapsed_date === 0)
             return;

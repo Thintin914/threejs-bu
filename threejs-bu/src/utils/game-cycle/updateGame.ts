@@ -232,9 +232,9 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                         physic.vel_z = component.vector.z * component.speed;
                     } else {
                         if (component.clockwise){
-                            transform.rotate_y = (transform.rotate_y + 0.05) % 360;
+                            transform.rotate_y = (transform.rotate_y + (3 * deltatime)) % 360;
                         } else {
-                            transform.rotate_y = (transform.rotate_y - 0.05) % 360;
+                            transform.rotate_y = (transform.rotate_y - (3 * deltatime)) % 360;
                         }
                     }
 
