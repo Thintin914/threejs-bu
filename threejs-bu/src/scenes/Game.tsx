@@ -31,7 +31,7 @@ export function Game() {
 
     const [spotlightHolder, setSpotlightHolder] = useState<string>('');
     const [currentDate, setCurrentDate] = useState<{ start_date: number, elapsed_date: number }>({ start_date: 0, elapsed_date: 0 });
-    const [countdown, setCountdown] = useState<number>(120);
+    const [countdown, setCountdown] = useState<number>(60);
     useEffect(() => {
         if (container.current && ui.current)
             init(true);
@@ -50,19 +50,19 @@ export function Game() {
         insertComponent(ground, {
             id: 'transform',
             y: -0.5,
-            offset: { x: 0, y: 0.2, z: -0.25 }
+            offset: { x: 0.75, y: 0, z: -0.45 }
         });
         insertComponent(ground, {
             id: 'model',
             bucket: 'scenes',
             file: 'GameMap/camp.glb',
-            scale: { x: 2.60, y: 2.60, z: 2.60 }
+            scale: { x: 3.60, y: 3.60, z: 3.60 }
         });
         insertComponent(ground, {
             id: 'hitbox',
-            width: 7,
+            width: 7.5,
             height: 0.1,
-            depth: 3.2
+            depth: 4.5
         });
         insertEntityToSystem(ground, system, scene, world, ui.current!, hitboxRef, setCaches, caches);
 
@@ -178,7 +178,7 @@ export function Game() {
             },
         });
 
-        stop(true);
+        // stop(true);
         room.current
             .on('presence', { event: 'sync' }, async () => {
                 const new_state = room.current!.presenceState();
