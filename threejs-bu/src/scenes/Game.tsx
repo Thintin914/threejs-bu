@@ -201,6 +201,7 @@ export function Game() {
                     id: 'model',
                     bucket: 'characters',
                     file: `players/${newPresences[0].skin}`,
+                    animation: 1,
                     scale: { x: 0.001, y: 0.001, z: 0.001 }
                 })
                 insertComponent(player, {
@@ -388,7 +389,7 @@ export function Game() {
                 // initial
                 let _skin = skin;
                 if (!_skin)
-                    _skin = 'knight3.glb';
+                    _skin = 'knight1-animated.glb';
                 await room.current!.track({
                     username: account.username,
                     skin: _skin,

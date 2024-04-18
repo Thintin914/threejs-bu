@@ -173,6 +173,7 @@ export function Matching() {
                     id: 'model',
                     bucket: 'characters',
                     file: `players/${newPresences[0].skin}`,
+                    animation: 1,
                     scale: { x: 0.001, y: 0.001, z: 0.001 }
                 })
                 insertComponent(player, {
@@ -266,11 +267,11 @@ export function Matching() {
                     return;
 
                 // initial
-                setSkin('knight1.glb');
+                setSkin('knight1-animated.glb');
                 await room.current!.track({
                     is_host: is_host,
                     username: account.username,
-                    skin: 'knight1.glb'
+                    skin: 'knight1-animated.glb'
                 });
             });
 
@@ -446,11 +447,11 @@ export function Matching() {
                             return;
                         if (player.skin === 'knight1.glb')
                             return;
-                        setSkin('knight1.glb')
+                        setSkin('knight1-animated.glb')
                         await room.current!.track({
                             is_host: is_host,
                             username: account.username,
-                            skin: 'knight1.glb'
+                            skin: 'knight1-animated.glb'
                         });
                     }}>
                     Black
