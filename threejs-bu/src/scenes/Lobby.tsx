@@ -73,8 +73,8 @@ export function Lobby() {
             insertComponent(player, {
                 id: 'model',
                 bucket: 'characters',
-                file: 'players/knight1-animated.glb',
-                animation: 1,
+                file: 'players/knight1run.glb',
+                animation: 0,
                 scale: { x: 0.001, y: 0.001, z: 0.001 }
             })
             insertComponent(player, {

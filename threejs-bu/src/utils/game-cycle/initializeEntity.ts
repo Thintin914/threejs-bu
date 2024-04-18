@@ -89,7 +89,7 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 let model_array_buffer = await model_blob?.arrayBuffer();
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
-                if (component.animation){
+                if (component.animation !== undefined || component.animation !== null){
                     let model_animation = model_gltf.animations[component.animation];
                     if (model_animation){
                         entity.components['animation'] = {
