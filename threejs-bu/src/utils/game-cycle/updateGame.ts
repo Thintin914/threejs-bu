@@ -128,6 +128,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     component.t += deltatime;
                     if (component.t > 0.05){
                         const transform = entity.components['transform'];
+                        const animation = entity.components['animation'];
                         component.t = 0;
                         room!.send({
                             type: 'broadcast',
@@ -146,7 +147,8 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                                         z: transform.z + transform.offset.z
                                     },
                                     scale: transform.scale
-                                }
+                                },
+                                clip: animation.current
                             },
                         })
                     }

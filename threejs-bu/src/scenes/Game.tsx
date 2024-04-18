@@ -289,9 +289,12 @@ export function Game() {
                     if (!entity)
                         return;
                     let transform = data.payload.transform;
+
                     let self_transform = entity.components['transform'];
+
                     let hitbox = system[entity_id].gameObject.hitbox as CANNON.Body;
                     hitbox.position.set(transform.position.x, transform.position.y, transform.position.z);
+                    
                     self_transform.x = transform.position.x;
                     self_transform.y = transform.position.y;
                     self_transform.z = transform.position.z;
@@ -299,6 +302,9 @@ export function Game() {
                     self_transform.rotate_y = transform.rotation.y;
                     self_transform.rotate_z = transform.rotation.z;
                     self_transform.scale = transform.scale;
+
+                    let self_animation = entity.components['animation'];
+                    self_animation.current = data.payload.clip;
                 }
             )
             .on(
