@@ -101,7 +101,27 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     break;
                 }
                 case 'animation': {
-                    entity.gameObject.mixer.update( deltatime );
+                    if (component.current !== component.prev){
+                        if (component.current !== ''){
+                            if (component.prev){
+                                let previous_clip = entity.gameObject.mixer.clipAction(component.clip[component.prev]);
+                                previous_clip.fadeOut(0.3);
+                                previous_clip.clampWhenFinished = true;
+                            }
+                            let current_clip = entity.gameObject.mixer.clipAction(component.clip[component.current]);
+                            current_clip.clampWhenFinished = false;
+                            current_clip.enabled = true;
+                            current_clip.fadeIn(0.1);
+                            current_clip.play();
+                        } else {
+                            entity.gameObject.mixer.stopAllAction();
+                        }
+                        component.prev = component.current;
+                    }
+
+                    if (component.current !== ''){
+                        entity.gameObject.mixer.update( deltatime );
+                    }
                     break;
                 }
                 case 'sync': {
@@ -187,12 +207,13 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                                 }
                             })
                         }
-                        if (animation){
-                            entity.gameObject.mixer.clipAction(animation.clip['walk']).play();
-                        }
                     }
-                    if (!pressed){
-                        entity.gameObject.mixer.stopAllAction();
+
+                    if (animation){
+                        if (pressed)
+                            animation.current = 'walk';
+                        else
+                            animation.current = 'idle';
                     }
 
                     component.previous = keyPressed;
@@ -212,6 +233,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     const model = entity.gameObject.model;
                     const transform = entity.components['transform'];
                     const physic = entity.components['physic'];
+                    const animation = entity.components['animation'];
 
                     let prev = component.previous;
                     if (!prev)
@@ -220,7 +242,6 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     if (keyPressed['ArrowUp']){
 
                         if (!prev['ArrowUp']){
-
                             const directionVector = new THREE.Vector3();
                             const rotationMatrix = new THREE.Matrix4();
                             rotationMatrix.makeRotationFromEuler(model.rotation);
@@ -230,6 +251,9 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                             component.speed = 12 * deltatime;
                             component.cooldown = 4 * deltatime;
                             component.clockwise = !component.clockwise;
+                            if (animation){
+                                animation.current = 'walk';
+                            }
                         }
                         physic.vel_cam_x += component.vector.x * 0.05;
                         physic.vel_cam_y += component.vector.y * 0.05;
@@ -253,6 +277,9 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                             transform.rotate_y = (transform.rotate_y + (3 * deltatime)) % 360;
                         } else {
                             transform.rotate_y = (transform.rotate_y - (3 * deltatime)) % 360;
+                        }
+                        if (animation){
+                            animation.current = 'idle';
                         }
                     }
 

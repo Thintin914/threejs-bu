@@ -73,11 +73,12 @@ export function Lobby() {
             insertComponent(player, {
                 id: 'model',
                 bucket: 'characters',
-                file: 'players/knight1run.glb',
+                file: 'players/knight1runS.glb',
                 animation: {
-                    ['walk']: 0
+                    ['idle']: 0,
+                    ['walk']: 1
                 },
-                default_animation: 'walk',
+                default_animation: 'idle',
                 scale: { x: 0.001, y: 0.001, z: 0.001 }
             });
             insertComponent(player, {

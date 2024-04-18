@@ -174,9 +174,10 @@ export function Matching() {
                     bucket: 'characters',
                     file: `players/${newPresences[0].skin}`,
                     animation: {
-                        ['walk']: 0
+                        ['idle']: 0,
+                        ['walk']: 1
                     },
-                    default_animation: 'walk',
+                    default_animation: 'idle',
                     scale: { x: 0.001, y: 0.001, z: 0.001 }
                 })
                 insertComponent(player, {
@@ -270,11 +271,11 @@ export function Matching() {
                     return;
 
                 // initial
-                setSkin('knight1run.glb');
+                setSkin('knight1runS.glb');
                 await room.current!.track({
                     is_host: is_host,
                     username: account.username,
-                    skin: 'knight1run.glb'
+                    skin: 'knight1runS.glb'
                 });
             });
 
@@ -379,13 +380,13 @@ export function Matching() {
                         let player = players[account.user_id];
                         if (!player)
                             return;
-                        if (player.skin === 'knight4run.glb')
+                        if (player.skin === 'knight4runS.glb')
                             return;
                         setSkin('knight4run.glb')
                         await room.current!.track({
                             is_host: is_host,
                             username: account.username,
-                            skin: 'knight4run.glb'
+                            skin: 'knight4runS.glb'
                         });
                     }}>
                     Tint
@@ -404,11 +405,11 @@ export function Matching() {
                             return;
                         if (player.skin === 'knight3run.glb')
                             return;
-                        setSkin('knight3run.glb')
+                        setSkin('knight3runS.glb')
                         await room.current!.track({
                             is_host: is_host,
                             username: account.username,
-                            skin: 'knight3run.glb'
+                            skin: 'knight3runS.glb'
                         });
                     }}>
                     Blue
@@ -425,13 +426,13 @@ export function Matching() {
                         let player = players[account.user_id];
                         if (!player)
                             return;
-                        if (player.skin === 'knight2run.glb')
+                        if (player.skin === 'knight2runS.glb')
                             return;
-                        setSkin('knight2run.glb')
+                        setSkin('knight2runS.glb')
                         await room.current!.track({
                             is_host: is_host,
                             username: account.username,
-                            skin: 'knight2run.glb'
+                            skin: 'knight2runS.glb'
                         });
                     }}>
                     Yellow
@@ -448,13 +449,13 @@ export function Matching() {
                         let player = players[account.user_id];
                         if (!player)
                             return;
-                        if (player.skin === 'knight1run.glb')
+                        if (player.skin === 'knight1runS.glb')
                             return;
-                        setSkin('knight1run.glb')
+                        setSkin('knight1runS.glb')
                         await room.current!.track({
                             is_host: is_host,
                             username: account.username,
-                            skin: 'knight1run.glb'
+                            skin: 'knight1runS.glb'
                         });
                     }}>
                     Black

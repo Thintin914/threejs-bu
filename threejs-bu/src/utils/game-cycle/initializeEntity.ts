@@ -90,8 +90,10 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
                 if (component.animation){
-                    let animation: {id: string, clip: Record<string, any>} = {
+                    let animation: {id: string, current: string, prev: string, clip: Record<string, any>} = {
                         id: 'animation',
+                        current: '',
+                        prev: '',
                         clip: {}
                     };
                     let mixer = new THREE.AnimationMixer(model);
@@ -103,8 +105,9 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                             animation.clip[key] = model_animation;
                         }
                     })
-                    if (component.default_animation)
-                        mixer.clipAction(animation.clip[component.default_animation]).play();
+                    if (component.default_animation){
+                        animation.current = component.default_animation;
+                    }
                     entity.components['animation'] = animation;
                 }
                 model.castShadow = true;
