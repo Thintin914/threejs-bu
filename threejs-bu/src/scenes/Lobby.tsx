@@ -437,8 +437,8 @@ export function Lobby() {
                                             let val = parseInt(e.target.value);
                                             if (val < 2)
                                                 val = 2;
-                                            if (val > 4)
-                                                val = 4;
+                                            if (val > 8)
+                                                val = 8;
                                             setRoomPlayers(val);
                                         }}
                                     />
