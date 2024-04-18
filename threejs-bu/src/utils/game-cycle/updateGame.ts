@@ -136,7 +136,9 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     const transform = entity.components['transform'];
                     const physic = entity.components['physic'];
                     const sync = entity.components['sync'];
+                    const animation = entity.components['animation'];
 
+                    let pressed = false;
                     let first_press = false;
                     let prev = component.previous;
                     if (!prev)
@@ -145,6 +147,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     if (keyPressed['ArrowLeft']){
                         physic.vel_x -= 12 * deltatime;
                         physic.vel_cam_x -= 0.005;
+                        pressed = true;
                         if (!prev['ArrowLeft']){
                             first_press = true;
                         }
@@ -152,6 +155,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     if (keyPressed['ArrowRight']){
                         physic.vel_x += 12 * deltatime;
                         physic.vel_cam_x += 0.005;
+                        pressed = true;
                         if (!prev['ArrowRight']){
                             first_press = true;
                         }
@@ -159,6 +163,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     if (keyPressed['ArrowUp']){
                         physic.vel_z -= 12 * deltatime;
                         physic.vel_cam_z -= 0.005;
+                        pressed = true;
                         if (!prev['ArrowUp']){
                             first_press = true;
                         }
@@ -166,6 +171,7 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     if (keyPressed['ArrowDown']){
                         physic.vel_z += 12 * deltatime;
                         physic.vel_cam_z += 0.005;
+                        pressed = true;
                         if (!prev['ArrowDown']){
                             first_press = true;
                         }
@@ -181,6 +187,12 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                                 }
                             })
                         }
+                        if (animation){
+                            entity.gameObject.mixer.clipAction(animation.clip['walk']).play();
+                        }
+                    }
+                    if (!pressed){
+                        entity.gameObject.mixer.stopAllAction();
                     }
 
                     component.previous = keyPressed;

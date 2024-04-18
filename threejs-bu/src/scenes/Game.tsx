@@ -201,7 +201,10 @@ export function Game() {
                     id: 'model',
                     bucket: 'characters',
                     file: `players/${newPresences[0].skin}`,
-                    animation: 1,
+                    animation: {
+                        ['walk']: 0
+                    },
+                    default_animation: 'walk',
                     scale: { x: 0.001, y: 0.001, z: 0.001 }
                 })
                 insertComponent(player, {

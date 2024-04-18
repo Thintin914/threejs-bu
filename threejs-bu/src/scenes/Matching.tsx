@@ -173,7 +173,10 @@ export function Matching() {
                     id: 'model',
                     bucket: 'characters',
                     file: `players/${newPresences[0].skin}`,
-                    animation: 0,
+                    animation: {
+                        ['walk']: 0
+                    },
+                    default_animation: 'walk',
                     scale: { x: 0.001, y: 0.001, z: 0.001 }
                 })
                 insertComponent(player, {

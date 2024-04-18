@@ -89,17 +89,23 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 let model_array_buffer = await model_blob?.arrayBuffer();
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
-                if (component.animation !== undefined || component.animation !== null){
-                    let model_animation = model_gltf.animations[component.animation];
-                    if (model_animation){
-                        entity.components['animation'] = {
-                            id: 'animation'
-                        };
-                        model.animations.push(model_animation);
-                        let mixer = new THREE.AnimationMixer(model);
-                        mixer.clipAction(model_animation).play();
-                        entity.gameObject.mixer = mixer;
-                    }
+                if (component.animation){
+                    let animation: {id: string, clip: Record<string, any>} = {
+                        id: 'animation',
+                        clip: {}
+                    };
+                    let mixer = new THREE.AnimationMixer(model);
+                    entity.gameObject.mixer = mixer;
+                    Object.entries(component.animation).forEach(([key, value]) =>{
+                        let typed_value = value as number;
+                        let model_animation = model_gltf.animations[typed_value];
+                        if (model_animation){
+                            animation.clip[key] = model_animation;
+                        }
+                    })
+                    if (component.default_animation)
+                        mixer.clipAction(animation.clip[component.default_animation]).play();
+                    entity.components['animation'] = animation;
                 }
                 model.castShadow = true;
                 model.receiveShadow = true;
