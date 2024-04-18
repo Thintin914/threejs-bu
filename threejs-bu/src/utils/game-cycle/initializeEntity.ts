@@ -6,10 +6,6 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 
 export const loader = new GLTFLoader();
 
-const threeTone = new THREE.DataTexture(
-    Uint8Array.from([0, 0, 0, 255, 128, 128, 128, 255, 255, 255, 255, 255]),3,1,THREE.RGBAFormat
-);
-
 export async function initializeEntity(entity: Entity, scene: THREE.Scene, world: CANNON.World, ui: HTMLDivElement, hitboxRef: Record<number, string>, setCaches: (name: string, file: Blob) => void, caches: Record<string, Blob>, room?: RealtimeChannel){
     let transform = entity.components['transform'];
     let _scale = {x: 1, y: 1, z: 1};
@@ -93,6 +89,18 @@ export async function initializeEntity(entity: Entity, scene: THREE.Scene, world
                 let model_array_buffer = await model_blob?.arrayBuffer();
                 let model_gltf = await loader.parseAsync(model_array_buffer, "");
                 let model = model_gltf.scene;
+                if (component.animation){
+                    let model_animation = model_gltf.animations[component.animation];
+                    if (model_animation){
+                        entity.components['animation'] = {
+                            id: 'animation'
+                        };
+                        model.animations.push(model_animation);
+                        let mixer = new THREE.AnimationMixer(model);
+                        mixer.clipAction(model_animation).play();
+                        entity.gameObject.mixer = mixer;
+                    }
+                }
                 model.castShadow = true;
                 model.receiveShadow = true;
 

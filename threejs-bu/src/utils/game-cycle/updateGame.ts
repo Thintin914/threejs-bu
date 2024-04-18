@@ -100,6 +100,10 @@ export function updateGame(time: number, scene: THREE.Scene, world: CANNON.World
                     }
                     break;
                 }
+                case 'animation': {
+                    entity.gameObject.mixer.update( deltatime );
+                    break;
+                }
                 case 'sync': {
                     component.t += deltatime;
                     if (component.t > 0.05){
